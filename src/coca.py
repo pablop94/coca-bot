@@ -5,6 +5,7 @@ import logging
 import os
 import traceback
 
+from exceptions import NoMealConfigured
 from meals import add, get_next_meal
 from telegram import ParseMode, Update
 from telegram.ext import Updater, CallbackContext, CommandHandler
@@ -17,10 +18,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def send_reminder(context: CallbackContext):
-  logger.info("Enviando recordatorio de comida.")
-  name, meal = get_next_meal()
-  context.bot.send_message(os.environ.get(
-      "CHAT_ID"), f"Hola {name} hoy te toca comprar los ingredientes para hacer {meal}")
+  try:
+    name, meal = get_next_meal()
+    logger.info("Enviando recordatorio de comida.")
+    context.bot.send_message(os.environ.get(
+        "CHAT_ID"), f"Hola `{name}` hoy te toca comprar los ingredientes para hacer `{meal}`")
+  except NoMealConfigured:
+    logger.info("Comida sin configurar.")
+    context.bot.send_message(os.environ.get(
+        "CHAT_ID"), f"Hola, no hay una comida configurada para hoy, si quieren cenar rico ponganse las pilas.")
 
 
 def add_meal(update, context):
@@ -33,7 +39,7 @@ def add_meal(update, context):
     name = context.args[0]
     add(name, meal)
     update.message.reply_text(
-        f"Ahí le agregué la comida {meal} a {name}")
+        f"Ahí le agregué la comida `{meal}` a `{name}`", parse_mode=ParseMode.MARKDOWN_V2)
 
 def error_handler(update, context):
   logger.error(msg="Error manejando un update:", exc_info=context.error)
