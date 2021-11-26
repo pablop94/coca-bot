@@ -1,7 +1,7 @@
 from db import push, pop
 
 
-def add(user, meal):
+def add_meal(user, meal):
   push({"name": user, "meal": meal})
 
 def get_next_meal():
