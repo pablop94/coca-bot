@@ -15,7 +15,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('coca.bot')
 
 
 def send_reminder(context: CallbackContext):
@@ -45,8 +45,7 @@ def add_meal_handler(update, context):
         f"Ahí le agregué la comida `{meal}` a `{name}`", parse_mode=ParseMode.MARKDOWN_V2)
     else:
       logger.warning(f"Recibido agregar desde un chat no configurado: {update.message.chat.id}.")
-      update.message.reply_text(
-        f"Quién *chota* sos?", parse_mode=ParseMode.MARKDOWN_V2)
+      update.message.reply_photo('https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg')
 
 
 def error_handler(update, context):
@@ -72,7 +71,7 @@ def error_handler(update, context):
 
 updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"))
 updater.job_queue.run_daily(send_reminder, time=datetime.time(
-    hour=16, minute=00, second=00), days=(2,))
+    hour=16), days=(2,))
 
 updater.dispatcher.add_handler(CommandHandler(
     "agregar", add_meal_handler, Filters.command))
