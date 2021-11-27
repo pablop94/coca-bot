@@ -1,6 +1,6 @@
 import json 
 
-from unittest import TestCase, main
+from unittest import TestCase
 from unittest.mock import patch
 
 from src.meals import add_meal, get_next_meal
@@ -24,6 +24,3 @@ class MealTest(TestCase):
     with self.assertRaises(NoMealConfigured):
       value = get_next_meal()
     
-
-if __name__ == '__main__':
-  main()

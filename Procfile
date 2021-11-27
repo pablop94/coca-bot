@@ -1,1 +1,1 @@
-clock: python src/coca.py
+clock: python -m src.coca

@@ -5,8 +5,8 @@ import logging
 import os
 import traceback
 
-from exceptions import NoMealConfigured
-from meals import add_meal, get_next_meal
+from src.exceptions import NoMealConfigured
+from src.meals import add_meal, get_next_meal
 from telegram import ParseMode, Update
 from telegram.ext import Updater, CallbackContext, CommandHandler
 from telegram.ext.filters import Filters
@@ -68,15 +68,15 @@ def error_handler(update, context):
   context.bot.send_message(os.environ.get(
     "DEVELOPER_CHAT_ID"), text=message, parse_mode=ParseMode.HTML)
 
+if __name__ == '__main__':
+  updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"))
+  updater.job_queue.run_daily(send_reminder, time=datetime.time(
+      hour=16), days=(2,))
 
-updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"))
-updater.job_queue.run_daily(send_reminder, time=datetime.time(
-    hour=16), days=(2,))
+  updater.dispatcher.add_handler(CommandHandler(
+      "agregar", add_meal_handler, Filters.command))
 
-updater.dispatcher.add_handler(CommandHandler(
-    "agregar", add_meal_handler, Filters.command))
+  updater.dispatcher.add_error_handler(error_handler)
 
-updater.dispatcher.add_error_handler(error_handler)
-
-updater.start_polling()
-updater.idle()
+  updater.start_polling()
+  updater.idle()

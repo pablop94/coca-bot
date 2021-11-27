@@ -1,6 +1,6 @@
 import json
-from .db import push, pop
-from .exceptions import NoMealConfigured
+from src.db import push, pop
+from src.exceptions import NoMealConfigured
 
 
 def add_meal(user, meal):
