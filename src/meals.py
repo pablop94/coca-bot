@@ -1,9 +1,15 @@
-from db import push, pop
+import json
+from .db import push, pop
+from .exceptions import NoMealConfigured
 
 
 def add_meal(user, meal):
-  push({"name": user, "meal": meal})
+  push(json.dumps({"name": user, "meal": meal}))
 
 def get_next_meal():
-  elem = pop()
-  return elem['name'], elem['meal']
+  item = pop()
+  if item is None:
+    raise NoMealConfigured()
+
+  meal = json.loads(item)
+  return meal['name'], meal['meal']
