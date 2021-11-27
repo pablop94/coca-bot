@@ -37,6 +37,6 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with unittest
       env:
-        REDIS_URL=http://localhost:6379
+        REDIS_URL: http://localhost:6379
       run: |
         python -m unittest
