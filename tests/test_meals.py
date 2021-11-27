@@ -17,7 +17,7 @@ class MealTest(TestCase):
   def test_get_next_meal(self, popfn):
     value = get_next_meal()
     self.assertTrue(popfn.called)
-    self.assertEquals(('test', 'test meal'), value)
+    self.assertEqual(('test', 'test meal'), value)
 
   @patch('src.meals.pop', side_effect=[None])
   def test_get_next_meal_no_meal(self, popfn):
