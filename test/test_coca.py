@@ -59,7 +59,7 @@ class CocaTest(TestCase):
     
 
   @patch.dict('os.environ', {'CHAT_ID': '1'})
-  @patch('src.coca.get_next_meal', side_effect=no_meal_configured)
+  @patch('src.coca.add_meal')
   def test_add_meal_handler(self, *args):
     context = get_mock_context(['name', 'meal'])
     update = get_mock_update()

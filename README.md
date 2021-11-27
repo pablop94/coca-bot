@@ -13,3 +13,14 @@ Con este comando agregamos una comida a la lista. Se enviará un recordatorio ca
 - `DEVELOPER_CHAT_ID` el chat donde se enviarán errores en caso de haberlos.
 - `TELEGRAM_TOKEN` el token del bot de Telegram.
 - `REDIS_URL` la url de la base de datos de redis.
+
+## Ejecución
+### Bot
+```
+python -m src.coca
+```
+
+### Tests
+```
+python -m unittest
+```
