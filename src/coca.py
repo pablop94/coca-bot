@@ -20,10 +20,13 @@ logger = logging.getLogger('coca.bot')
 
 def send_reminder(context: CallbackContext):
   try:
-    name, meal = get_next_meal()
+    name, meal, remaining = get_next_meal()
     logger.info("Enviando recordatorio de comida.")
     context.bot.send_message(os.environ.get(
       "CHAT_ID"), f"Hola `{name}` te toca comprar los ingredientes para hacer `{meal}`", parse_mode=ParseMode.MARKDOWN_V2)
+    if remaining == 0:
+      context.bot.send_message(os.environ.get(
+        "CHAT_ID"), f"Además les informo que no hay más comidas configuradas, ponganse a pensar", parse_mode=ParseMode.MARKDOWN_V2)
   except NoMealConfigured:
     logger.info("Comida sin configurar.")
     context.bot.send_message(os.environ.get(

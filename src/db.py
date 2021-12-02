@@ -9,3 +9,6 @@ def push(item):
 
 def pop():
   return DB.lpop(LIST_KEY)
+
+def remaining_meals():
+  return DB.llen(LIST_KEY)

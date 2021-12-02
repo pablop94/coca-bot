@@ -1,5 +1,5 @@
 import json
-from src.db import push, pop
+from src.db import push, pop, remaining_meals
 from src.exceptions import NoMealConfigured
 
 
@@ -12,4 +12,4 @@ def get_next_meal():
     raise NoMealConfigured()
 
   meal = json.loads(item)
-  return meal['name'], meal['meal']
+  return meal['name'], meal['meal'], remaining_meals()
