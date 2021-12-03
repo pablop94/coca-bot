@@ -8,6 +8,11 @@ La coca es un bot que nace para recordarnos a un grupo de amigos quienes tienen 
 ```
 Con este comando agregamos una comida a la lista. Se enviará un recordatorio los días `REMINDER_DAYS` a las `REMINDER_HOUR_UTC` en punto, teniendo en cuenta el orden en el que fueron ingresadas.
 
+```
+/historial
+```
+Con este comando vemos un contador histórico de quienes se encargaron de las comidas.
+
 ## Variables de ambiente
 - `CHAT_ID` el chat donde se enviará el recordatorio.
 - `DEVELOPER_CHAT_ID` el chat donde se enviarán errores en caso de haberlos.

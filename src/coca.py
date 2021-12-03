@@ -6,7 +6,7 @@ import os
 import traceback
 
 from src.exceptions import NoMealConfigured
-from src.meals import add_meal, get_next_meal
+from src.meals import add_meal, get_next_meal, history, add_history
 from telegram import ParseMode, Update
 from telegram.ext import Updater, CallbackContext, CommandHandler
 from telegram.ext.filters import Filters
@@ -21,6 +21,7 @@ logger = logging.getLogger('coca.bot')
 def send_reminder(context: CallbackContext):
   try:
     name, meal, remaining = get_next_meal()
+    add_history(name)
     logger.info("Enviando recordatorio de comida.")
     context.bot.send_message(os.environ.get(
       "CHAT_ID"), f"Hola `{name}` te toca comprar los ingredientes para hacer `{meal}`", parse_mode=ParseMode.MARKDOWN_V2)
@@ -51,6 +52,24 @@ def add_meal_handler(update, context):
       update.message.reply_photo('https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg')
 
 
+def history_handler(update, context):
+  names = history()
+  aggregation = dict()
+  for bname in names:
+    name = bname if not type(bname) is bytes else bname.decode("utf-8")
+    if name not in aggregation:
+      aggregation[name] = 0
+    aggregation[name] += 1
+
+  if len(names)>0:
+    body = "El historial es\n"
+    for name in aggregation.keys():
+      body += f"\n{name}: {aggregation[name]}"
+  else: 
+    body = "No hay comidas realizadas"
+
+  update.message.reply_text(body, parse_mode=ParseMode.MARKDOWN_V2)
+
 def error_handler(update, context):
   logger.error(msg="Error manejando un update:", exc_info=context.error)
   update_str = update.to_dict() if isinstance(update, Update) else str(update)
@@ -77,10 +96,12 @@ if __name__ == '__main__':
   hour = int(os.environ.get("REMINDER_HOUR_UTC"))
   days = tuple(int(e) for e in os.environ.get("REMINDER_DAYS").split(','))
   updater.job_queue.run_daily(send_reminder, time=datetime.time(
-      hour=hour), days=days)
+      hour=hour, minute=41), days=days)
 
   updater.dispatcher.add_handler(CommandHandler(
-      "agregar", add_meal_handler, Filters.command))
+    "agregar", add_meal_handler, Filters.command))
+  updater.dispatcher.add_handler(CommandHandler(
+    "historial", history_handler, Filters.command))
 
   updater.dispatcher.add_error_handler(error_handler)
 

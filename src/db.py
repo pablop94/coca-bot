@@ -11,3 +11,6 @@ def pop(key):
 
 def llen(key):
   return DB.llen(key)
+
+def get(key):
+  return DB.lrange(key, 0, -1)

@@ -3,7 +3,7 @@ import json
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, call
 
-from src.coca import send_reminder, add_meal_handler
+from src.coca import send_reminder, add_meal_handler, history_handler
 from src.exceptions import NoMealConfigured
 from telegram import ParseMode
 
@@ -40,6 +40,7 @@ def get_mock_update(args=[]):
 class CocaTest(TestCase):
   @patch.dict('os.environ', {'CHAT_ID': ''})
   @patch('src.coca.get_next_meal', side_effect=[('test name', 'test meal', 4)])
+  @patch('src.coca.add_history')
   def test_send_reminder(self, *args):
     context = get_mock_context()
     send_reminder(context)
@@ -47,8 +48,18 @@ class CocaTest(TestCase):
     context.bot.send_message.assert_called_once_with('', "Hola `test name` te toca comprar los ingredientes para hacer `test meal`", parse_mode=ParseMode().MARKDOWN_V2)
     
   @patch.dict('os.environ', {'CHAT_ID': ''})
+  @patch('src.coca.get_next_meal', side_effect=[('test name', 'test meal', 4)])
+  @patch('src.coca.add_history')
+  def test_send_reminder_add_history(self, addhistoryfn, *args):
+    context = get_mock_context()
+    send_reminder(context)
+
+    addhistoryfn.assert_called_once_with('test name')
+    
+  @patch.dict('os.environ', {'CHAT_ID': ''})
   @patch('src.coca.get_next_meal', side_effect=[('test name', 'test meal', 0)])
-  def test_send_reminder(self, *args):
+  @patch('src.coca.add_history')
+  def test_send_reminder_no_more_meals(self, *args):
     context = get_mock_context()
     send_reminder(context)
 
@@ -96,4 +107,14 @@ class CocaTest(TestCase):
     add_meal_handler(update, context)
 
     update.message.reply_photo.assert_called_once_with('https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg')
+    
+
+  @patch.dict('os.environ', {'CHAT_ID': '1'})
+  @patch('src.coca.history', side_effect=[['test1', 'test2', 'test1']])
+  def test_history_handler(self, *args):
+    context = get_mock_context(['name', 'meal'])
+    update = get_mock_update()
+    history_handler(update, context)
+
+    update.message.reply_text.assert_called_once_with("El historial es\n\ntest1: 2\ntest2: 1", parse_mode=ParseMode.MARKDOWN_V2)
     

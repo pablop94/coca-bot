@@ -14,11 +14,11 @@ class MealTest(TestCase):
     pushfn.assert_called_once_with("meals", json.dumps({'name': 'test', 'meal': 'test meal'}))
 
   @patch('src.meals.pop', side_effect=[json.dumps({'name': 'test', 'meal': 'test meal'})])
-  @patch('src.meals.remaining_meals', side_effect=[3])
-  def test_get_next_meal(self, remaining_mealsfn, popfn):
+  @patch('src.meals.llen', side_effect=[3])
+  def test_get_next_meal(self, llenfn, popfn, *args):
     value = get_next_meal()
     self.assertTrue(popfn.called)
-    self.assertTrue(remaining_mealsfn.called)
+    self.assertTrue(llenfn.called)
     self.assertEqual(('test', 'test meal', 3), value)
 
   @patch('src.meals.pop', side_effect=[None])
