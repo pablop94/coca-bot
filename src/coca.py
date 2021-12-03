@@ -73,8 +73,11 @@ def error_handler(update, context):
 
 if __name__ == '__main__':
   updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"))
+  
+  hour = int(os.environ.get("REMINDER_HOUR_UTC"))
+  days = tuple(int(e) for e in os.environ.get("REMINDER_DAYS").split(','))
   updater.job_queue.run_daily(send_reminder, time=datetime.time(
-      hour=16), days=(2,))
+      hour=hour), days=days)
 
   updater.dispatcher.add_handler(CommandHandler(
       "agregar", add_meal_handler, Filters.command))
