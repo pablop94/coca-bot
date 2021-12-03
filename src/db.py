@@ -1,14 +1,13 @@
 import os
 import redis
 
-LIST_KEY = "meals"
 DB = redis.from_url(os.environ.get("REDIS_URL"))
 
-def push(item):
-  DB.rpush(LIST_KEY, item)
+def push(key, item):
+  DB.rpush(key, item)
 
-def pop():
-  return DB.lpop(LIST_KEY)
+def pop(key):
+  return DB.lpop(key)
 
-def remaining_meals():
-  return DB.llen(LIST_KEY)
+def llen(key):
+  return DB.llen(key)

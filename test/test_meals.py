@@ -11,7 +11,7 @@ class MealTest(TestCase):
   def test_add_meal(self, pushfn):
     add_meal('test', 'test meal')
     self.assertTrue(pushfn.called)
-    pushfn.assert_called_once_with(json.dumps({'name': 'test', 'meal': 'test meal'}))
+    pushfn.assert_called_once_with("meals", json.dumps({'name': 'test', 'meal': 'test meal'}))
 
   @patch('src.meals.pop', side_effect=[json.dumps({'name': 'test', 'meal': 'test meal'})])
   @patch('src.meals.remaining_meals', side_effect=[3])
