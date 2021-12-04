@@ -1,6 +1,6 @@
 # La Coca
 
-La coca es un bot que nace para recordarnos a un grupo de amigos quienes tienen que hacer las compras para las juntadas.
+La coca es un bot que nace para recordarnos a un grupo de amigues quienes tienen que hacer las compras para las juntadas.
 
 ## Modo de uso
 ```
