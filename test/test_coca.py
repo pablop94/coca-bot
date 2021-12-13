@@ -120,6 +120,7 @@ class CocaTest(TestCase):
     update.message.reply_text.assert_called_once_with("El historial es\n\ntest1: 2\ntest2: 1", parse_mode=ParseMode.MARKDOWN_V2)
     
 
+  @patch.dict('os.environ', {'CHAT_ID': '2'})
   @patch('src.handlers.history', side_effect=[['test1', 'test2', 'test1']])
   def test_history_handler_unknown_chat(self, *args):
     context = get_mock_context(['name', 'meal'])
