@@ -9,6 +9,24 @@ from src.meals import add_meal, get_next_meal, history, add_history
 from telegram import ParseMode, Update
 
 
+def get_handler_name(name):
+  parts = name.split('_')
+  return '_'.join(parts[:len(parts)-1])
+
+
+def chat_id_required(fn):
+  fnname = get_handler_name(fn.__name__)
+
+  def inner(update, context):
+    if update.message.chat.id == int(os.environ.get("CHAT_ID")):
+      fn(update, context) 
+    else: 
+      logger.warning(f"Recibido <{fnname}> desde un chat no configurado: {update.message.chat.id}.")
+      update.message.reply_photo('https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg')
+
+  return inner
+
+
 def send_reminder(context):
   try:
     name, meal, remaining = get_next_meal()
@@ -25,24 +43,22 @@ def send_reminder(context):
       "CHAT_ID"), f"Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas.")
 
 
+@chat_id_required
 def add_meal_handler(update, context):
   if len(context.args) < 2:
     logger.info("Recibido agregar con parámetros incompletos.")
     update.message.reply_text(
       "Para que pueda agregar necesito que me pases un nombre y una comida")
   else:
-    if update.message.chat.id == int(os.environ.get("CHAT_ID")):
       logger.info("Agregando recordatorio de comida.")
       meal = ' '.join(context.args[1:])
       name = context.args[0]
       add_meal(name, meal)
       update.message.reply_text(
         f"Ahí le agregué la comida `{meal}` a `{name}`", parse_mode=ParseMode.MARKDOWN_V2)
-    else:
-      logger.warning(f"Recibido agregar desde un chat no configurado: {update.message.chat.id}.")
-      update.message.reply_photo('https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg')
 
 
+@chat_id_required
 def history_handler(update, context):
   names = history()
   aggregation = dict()
@@ -64,7 +80,7 @@ def history_handler(update, context):
   update.message.reply_text(body, parse_mode=ParseMode.MARKDOWN_V2)
 
 def error_handler(update, context):
-  logger.error(msg="Error manejando un update:", exc_info=context.error)
+  logger.error(msg="Error procesando un update:", exc_info=context.error)
   update_str = update.to_dict() if isinstance(update, Update) else str(update)
   tb_list = traceback.format_exception(
       None, context.error, context.error.__traceback__)

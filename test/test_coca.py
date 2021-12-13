@@ -91,6 +91,7 @@ class CocaTest(TestCase):
 
     update.message.reply_text.assert_called_once_with("Ahí le agregué la comida `meal` a `name`", parse_mode=ParseMode.MARKDOWN_V2)
     
+  @patch.dict('os.environ', {'CHAT_ID': '1'})
   @patch('src.handlers.get_next_meal', side_effect=no_meal_configured)
   def test_add_meal_handler_no_args(self, *args):
     context = get_mock_context()
@@ -118,3 +119,11 @@ class CocaTest(TestCase):
 
     update.message.reply_text.assert_called_once_with("El historial es\n\ntest1: 2\ntest2: 1", parse_mode=ParseMode.MARKDOWN_V2)
     
+
+  @patch('src.handlers.history', side_effect=[['test1', 'test2', 'test1']])
+  def test_history_handler_unknown_chat(self, *args):
+    context = get_mock_context(['name', 'meal'])
+    update = get_mock_update()
+    history_handler(update, context)
+
+    update.message.reply_photo.assert_called_once_with('https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg')
