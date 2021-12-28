@@ -4,6 +4,7 @@ from src.exceptions import NoMealConfigured
 
 MEALS_KEY = "meals"
 HISTORY_KEY = "history"
+SKIP_KEY = "skip"
 
 def add_meal(user, meal):
   push(MEALS_KEY, json.dumps({"name": user, "meal": meal}))
@@ -24,3 +25,9 @@ def add_history(name):
 
 def _remaining_meals():
   return llen(MEALS_KEY)
+
+def get_skip():
+  return pop(SKIP_KEY)
+
+def add_skip():
+  push(SKIP_KEY, 'skip')

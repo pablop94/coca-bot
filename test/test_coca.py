@@ -3,7 +3,7 @@ import json
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, call
 
-from src.handlers import send_reminder, add_meal_handler, history_handler
+from src.handlers import send_reminder, add_meal_handler, history_handler, skip_handler
 from src.exceptions import NoMealConfigured
 from telegram import ParseMode
 
@@ -128,3 +128,28 @@ class CocaTest(TestCase):
     history_handler(update, context)
 
     update.message.reply_photo.assert_called_once_with('https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg')
+
+
+  @patch.dict('os.environ', {'CHAT_ID': ''})
+  @patch('src.handlers.get_skip', side_effect=['skip'])
+  @patch('src.handlers.get_next_meal', side_effect=[('test name', 'test meal', 0)])
+  @patch('src.handlers.add_history')
+  def test_send_reminder_skip_active(self, history_call, get_next_meal_call, *args):
+    context = get_mock_context()
+    send_reminder(context)
+
+    self.assertFalse(history_call.called)
+    self.assertFalse(get_next_meal_call.called)
+
+    self.assertEqual(0, context.bot.send_message.call_count)
+
+
+  @patch.dict('os.environ', {'CHAT_ID': '1'})
+  @patch('src.handlers.add_skip')
+  def test_skip_handler(self, skip_call, *args):
+    context = get_mock_context()
+    update = get_mock_update()
+    skip_handler(update, context)
+
+    self.assertTrue(skip_call.called)
+    update.message.reply_text.assert_called_once_with("Perfecto, me salteo una comida", parse_mode=ParseMode.MARKDOWN_V2)

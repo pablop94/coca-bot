@@ -5,7 +5,7 @@ import traceback
 
 from src.exceptions import NoMealConfigured
 from src.logger import logger
-from src.meals import add_meal, get_next_meal, history, add_history
+from src.meals import add_meal, get_next_meal, history, add_history, get_skip, add_skip
 from telegram import ParseMode, Update
 
 
@@ -28,20 +28,22 @@ def chat_id_required(fn):
 
 
 def send_reminder(context):
-  try:
-    name, meal, remaining = get_next_meal()
-    add_history(name)
-    logger.info("Enviando recordatorio de comida.")
-    context.bot.send_message(os.environ.get(
-      "CHAT_ID"), f"Hola `{name}` te toca comprar los ingredientes para hacer `{meal}`", parse_mode=ParseMode.MARKDOWN_V2)
-    if remaining == 0:
+  if not get_skip():
+    try:
+      name, meal, remaining = get_next_meal()
+      add_history(name)
+      logger.info("Enviando recordatorio de comida.")
       context.bot.send_message(os.environ.get(
-        "CHAT_ID"), f"Además les informo que no hay más comidas configuradas, ponganse a pensar", parse_mode=ParseMode.MARKDOWN_V2)
-  except NoMealConfigured:
-    logger.info("Comida sin configurar.")
-    context.bot.send_message(os.environ.get(
-      "CHAT_ID"), f"Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas.")
-
+        "CHAT_ID"), f"Hola `{name}` te toca comprar los ingredientes para hacer `{meal}`", parse_mode=ParseMode.MARKDOWN_V2)
+      if remaining == 0:
+        context.bot.send_message(os.environ.get(
+          "CHAT_ID"), f"Además les informo que no hay más comidas configuradas, ponganse a pensar", parse_mode=ParseMode.MARKDOWN_V2)
+    except NoMealConfigured:
+      logger.info("Comida sin configurar.")
+      context.bot.send_message(os.environ.get(
+        "CHAT_ID"), f"Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas.")
+  else: 
+    logger.info("Salteando recordatorio debido a un skip.")
 
 @chat_id_required
 def add_meal_handler(update, context):
@@ -78,6 +80,12 @@ def history_handler(update, context):
   logger.info("Enviando historial de comidas.")
 
   update.message.reply_text(body, parse_mode=ParseMode.MARKDOWN_V2)
+
+@chat_id_required
+def skip_handler(update, context):
+  add_skip()
+
+  update.message.reply_text("Perfecto, me salteo una comida", parse_mode=ParseMode.MARKDOWN_V2)
 
 def error_handler(update, context):
   logger.error(msg="Error procesando un update:", exc_info=context.error)

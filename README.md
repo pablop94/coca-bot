@@ -13,6 +13,11 @@ Con este comando agregamos una comida a la lista. Se enviará un recordatorio lo
 ```
 Con este comando vemos un contador histórico de quienes se encargaron de las comidas.
 
+```
+/saltear
+```
+Con este comando Coca se saltea un recordatorio.
+
 ## Variables de ambiente
 - `CHAT_ID` el chat donde se enviará el recordatorio.
 - `DEVELOPER_CHAT_ID` el chat donde se enviarán errores en caso de haberlos.
