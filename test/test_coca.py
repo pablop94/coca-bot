@@ -178,3 +178,11 @@ class CocaTest(TestCase):
     self.assertTrue(get_next_meal_call.called)
 
     self.assertEqual(2, context.bot.send_message.call_count)
+
+  @patch.dict('os.environ', {'CHAT_ID': '2'})
+  def test_skip_handler_unknown_chat(self, *args):
+    context = get_mock_context(['name', 'meal'])
+    update = get_mock_update()
+    skip_handler(update, context)
+
+    update.message.reply_photo.assert_called_once_with('https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg')
