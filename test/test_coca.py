@@ -157,3 +157,24 @@ class CocaTest(TestCase):
 
     self.assertTrue(skip_call.called)
     update.message.reply_text.assert_called_once_with("Perfecto, me salteo una comida", parse_mode=ParseMode.MARKDOWN_V2)
+
+
+  @patch.dict('os.environ', {'CHAT_ID': ''})
+  @patch('src.handlers.get_skip', side_effect=['skip', None])
+  @patch('src.handlers.get_next_meal', side_effect=[('test name', 'test meal', 0)])
+  @patch('src.handlers.add_history')
+  def test_send_reminders_skip_active(self, history_call, get_next_meal_call, *args):
+    context = get_mock_context()
+    send_reminder(context)
+
+    self.assertFalse(history_call.called)
+    self.assertFalse(get_next_meal_call.called)
+
+    self.assertEqual(0, context.bot.send_message.call_count)
+
+    send_reminder(context)
+
+    self.assertTrue(history_call.called)
+    self.assertTrue(get_next_meal_call.called)
+
+    self.assertEqual(2, context.bot.send_message.call_count)
