@@ -39,6 +39,7 @@ def get_mock_update(args=[]):
 
 class CocaTest(TestCase):
   @patch.dict('os.environ', {'CHAT_ID': ''})
+  @patch('src.handlers.get_skip', side_effect=[None])
   @patch('src.handlers.get_next_meal', side_effect=[('test name', 'test meal', 4)])
   @patch('src.handlers.add_history')
   def test_send_reminder(self, *args):
@@ -48,6 +49,7 @@ class CocaTest(TestCase):
     context.bot.send_message.assert_called_once_with('', "Hola `test name` te toca comprar los ingredientes para hacer `test meal`", parse_mode=ParseMode().MARKDOWN_V2)
     
   @patch.dict('os.environ', {'CHAT_ID': ''})
+  @patch('src.handlers.get_skip', side_effect=[None])
   @patch('src.handlers.get_next_meal', side_effect=[('test name', 'test meal', 4)])
   @patch('src.handlers.add_history')
   def test_send_reminder_add_history(self, addhistoryfn, *args):
@@ -57,6 +59,7 @@ class CocaTest(TestCase):
     addhistoryfn.assert_called_once_with('test name')
     
   @patch.dict('os.environ', {'CHAT_ID': ''})
+  @patch('src.handlers.get_skip', side_effect=[None])
   @patch('src.handlers.get_next_meal', side_effect=[('test name', 'test meal', 0)])
   @patch('src.handlers.add_history')
   def test_send_reminder_no_more_meals(self, *args):
@@ -74,6 +77,7 @@ class CocaTest(TestCase):
     raise NoMealConfigured()
 
   @patch.dict('os.environ', {'CHAT_ID': ''})
+  @patch('src.handlers.get_skip', side_effect=[None])
   @patch('src.handlers.get_next_meal', side_effect=no_meal_configured)
   def test_send_reminder_no_meal(self, *args):
     context = get_mock_context()
