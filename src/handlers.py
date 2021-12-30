@@ -74,10 +74,8 @@ def history_handler(update, context):
     body = "El historial es\n"
     for name in aggregation.keys():
       body += f"\n{name}: {aggregation[name]}"
-  else: 
-    body = "No hay comidas realizadas"
   
-  logger.info("Enviando historial de comidas.")
+    logger.info("Enviando historial de comidas.")
 
   update.message.reply_text(body, parse_mode=ParseMode.MARKDOWN_V2)
 
