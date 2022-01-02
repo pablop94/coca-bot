@@ -8,7 +8,7 @@ from src.handlers import (
     skip_handler,
     error_handler,
 )
-from telegram.ext import Updater, CommandHandler, MessageHandler
+from telegram.ext import Updater, CommandHandler
 from telegram.ext.filters import Filters
 
 if __name__ == "__main__":
