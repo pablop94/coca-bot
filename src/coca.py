@@ -7,7 +7,8 @@ from src.handlers import (
     add_meal_handler,
     history_handler,
     skip_handler,
-    falopa_handler,
+    rica_handler,
+    pegar_handler,
     error_handler,
 )
 from telegram.ext import Updater, CommandHandler, MessageHandler
@@ -32,8 +33,16 @@ if __name__ == "__main__":
 
     updater.dispatcher.add_handler(
         MessageHandler(
-            Filters.regex(re.compile(r"\brica\b", re.IGNORECASE)) & ~Filters.command,
-            falopa_handler,
+            Filters.regex(re.compile(r"\brica", re.IGNORECASE)) & ~Filters.command,
+            rica_handler,
+        )
+    )
+
+    updater.dispatcher.add_handler(
+        MessageHandler(
+            Filters.regex(re.compile(r"\b(comprar|pegar)\b", re.IGNORECASE))
+            & ~Filters.command,
+            pegar_handler,
         )
     )
 

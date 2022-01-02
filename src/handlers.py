@@ -106,9 +106,15 @@ def skip_handler(update, context):
 
 
 @chat_id_required
-def falopa_handler(update, context):
+def rica_handler(update, context):
     with open("media/amarga.mp3", "rb") as audio:
-        update.message.reply_audio(audio=audio)
+        update.message.reply_audio(audio=audio, title="rica, rica... amarga")
+
+
+@chat_id_required
+def pegar_handler(update, context):
+    with open("media/falopa.mp3", "rb") as audio:
+        update.message.reply_audio(audio=audio, title="pegar falopa")
 
 
 def error_handler(update, context):
