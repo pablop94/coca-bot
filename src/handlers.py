@@ -105,6 +105,12 @@ def skip_handler(update, context):
     )
 
 
+@chat_id_required
+def falopa_handler(update, context):
+    with open("media/amarga.mp3", "rb") as audio:
+        update.message.reply_audio(audio=audio)
+
+
 def error_handler(update, context):
     logger.error(msg="Error procesando un update:", exc_info=context.error)
     update_str = update.to_dict() if isinstance(update, Update) else str(update)

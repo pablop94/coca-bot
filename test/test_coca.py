@@ -1,7 +1,13 @@
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, call
 
-from src.handlers import send_reminder, add_meal_handler, history_handler, skip_handler
+from src.handlers import (
+    send_reminder,
+    add_meal_handler,
+    history_handler,
+    skip_handler,
+    falopa_handler,
+)
 from src.exceptions import NoMealConfigured
 from telegram import ParseMode
 
@@ -20,6 +26,7 @@ class MockMessage:
         self.chat = MockChat()
         self.reply_text = MagicMock()
         self.reply_photo = MagicMock()
+        self.reply_audio = MagicMock()
 
 
 def get_mock_context(args=[]):
@@ -214,3 +221,11 @@ class CocaTest(TestCase):
         update.message.reply_photo.assert_called_once_with(
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
+
+    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    def test_falopa_handler(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        falopa_handler(update, context)
+
+        update.message.reply_audio.assert_called_once()

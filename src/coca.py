@@ -1,14 +1,16 @@
 import datetime
 import os
+import re
 
 from src.handlers import (
     send_reminder,
     add_meal_handler,
     history_handler,
     skip_handler,
+    falopa_handler,
     error_handler,
 )
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler
 from telegram.ext.filters import Filters
 
 if __name__ == "__main__":
@@ -26,6 +28,13 @@ if __name__ == "__main__":
     )
     updater.dispatcher.add_handler(
         CommandHandler("saltear", skip_handler, Filters.command)
+    )
+
+    updater.dispatcher.add_handler(
+        MessageHandler(
+            Filters.regex(re.compile(r"rica", re.IGNORECASE)) & ~Filters.command,
+            falopa_handler,
+        )
     )
 
     updater.dispatcher.add_error_handler(error_handler)
