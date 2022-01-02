@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     updater.dispatcher.add_handler(
         MessageHandler(
-            Filters.regex(re.compile(r"rica", re.IGNORECASE)) & ~Filters.command,
+            Filters.regex(re.compile(r"\brica\b", re.IGNORECASE)) & ~Filters.command,
             falopa_handler,
         )
     )
