@@ -105,25 +105,22 @@ def skip_handler(update, context):
     )
 
 
-@chat_id_required
 def rica_handler(update, context):
-    logger.info("Enviando audio rica.mp3")
-    with open("media/rica.mp3", "rb") as audio:
-        update.message.reply_audio(audio=audio, title="rica, rica... amarga")
+    _send_audio(update, "rica.mp3", "rica, rica... amarga")
 
 
-@chat_id_required
 def pegar_handler(update, context):
-    logger.info("Enviando audio pegar.mp3")
-    with open("media/pegar.mp3", "rb") as audio:
-        update.message.reply_audio(audio=audio, title="pegar falopa")
+    _send_audio(update, "pegar.mp3", "pegar falopa")
 
 
-@chat_id_required
 def chocolate_handler(update, context):
-    logger.info("Enviando audio chocolate.mp3")
-    with open("media/chocolate.mp3", "rb") as audio:
-        update.message.reply_audio(audio=audio, title="chocolate")
+    _send_audio(update, "chocolate.mp3", "chocolate")
+
+
+def _send_audio(update, audio_name, title):
+    logger.info(f"Enviando audio {audio_name}")
+    with open(f"media/{audio_name}", "rb") as audio:
+        update.message.reply_audio(audio=audio, title=title)
 
 
 def error_handler(update, context):

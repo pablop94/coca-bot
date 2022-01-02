@@ -232,16 +232,6 @@ class CocaTest(TestCase):
 
         update.message.reply_audio.assert_called_once()
 
-    @patch.dict("os.environ", {"CHAT_ID": "2"})
-    def test_rica_handler_unknown_chat(self, *args):
-        context = get_mock_context(["name", "meal"])
-        update = get_mock_update()
-        rica_handler(update, context)
-
-        update.message.reply_photo.assert_called_once_with(
-            "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
-        )
-
     @patch.dict("os.environ", {"CHAT_ID": "1"})
     def test_pegar_handler(self, *args):
         context = get_mock_context()
@@ -250,16 +240,6 @@ class CocaTest(TestCase):
 
         update.message.reply_audio.assert_called_once()
 
-    @patch.dict("os.environ", {"CHAT_ID": "2"})
-    def test_pegar_handler_unknown_chat(self, *args):
-        context = get_mock_context(["name", "meal"])
-        update = get_mock_update()
-        pegar_handler(update, context)
-
-        update.message.reply_photo.assert_called_once_with(
-            "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
-        )
-
     @patch.dict("os.environ", {"CHAT_ID": "1"})
     def test_chocolate_handler(self, *args):
         context = get_mock_context()
@@ -267,13 +247,3 @@ class CocaTest(TestCase):
         chocolate_handler(update, context)
 
         update.message.reply_audio.assert_called_once()
-
-    @patch.dict("os.environ", {"CHAT_ID": "2"})
-    def test_chocolate_handler_unknown_chat(self, *args):
-        context = get_mock_context(["name", "meal"])
-        update = get_mock_update()
-        chocolate_handler(update, context)
-
-        update.message.reply_photo.assert_called_once_with(
-            "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
-        )

@@ -15,6 +15,14 @@ from src.handlers import (
 from telegram.ext import Updater, CommandHandler, MessageHandler
 from telegram.ext.filters import Filters
 
+
+def regexMessageHandler(regex, handler):
+    return MessageHandler(
+        Filters.regex(re.compile(regex, re.IGNORECASE)) & ~Filters.command,
+        handler,
+    )
+
+
 if __name__ == "__main__":
     updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"))
 
@@ -32,27 +40,12 @@ if __name__ == "__main__":
         CommandHandler("saltear", skip_handler, Filters.command)
     )
 
+    updater.dispatcher.add_handler(regexMessageHandler(r"\brica", rica_handler))
     updater.dispatcher.add_handler(
-        MessageHandler(
-            Filters.regex(re.compile(r"\brica", re.IGNORECASE)) & ~Filters.command,
-            rica_handler,
-        )
+        regexMessageHandler(r"\b(comprar|pegar|compra)\b", pegar_handler)
     )
-
     updater.dispatcher.add_handler(
-        MessageHandler(
-            Filters.regex(re.compile(r"\b(comprar|pegar|compra)\b", re.IGNORECASE))
-            & ~Filters.command,
-            pegar_handler,
-        )
-    )
-
-    updater.dispatcher.add_handler(
-        MessageHandler(
-            Filters.regex(re.compile(r"\bchocolate\b", re.IGNORECASE))
-            & ~Filters.command,
-            chocolate_handler,
-        )
+        regexMessageHandler(r"\bchocolate\b", chocolate_handler)
     )
 
     updater.dispatcher.add_error_handler(error_handler)
