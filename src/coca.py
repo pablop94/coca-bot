@@ -23,6 +23,20 @@ def regexMessageHandler(regex, handler):
     )
 
 
+def commandHandler(name, handler):
+    return CommandHandler(
+        name,
+        handler,
+        Filters.command & ~Filters.update.edited_message,
+    )
+
+
+COMMANDS = [
+    ("agregar", add_meal_handler),
+    ("historial", history_handler),
+    ("saltear", skip_handler),
+]
+
 if __name__ == "__main__":
     updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"))
 
@@ -30,25 +44,8 @@ if __name__ == "__main__":
     days = tuple(int(e) for e in os.environ.get("REMINDER_DAYS").split(","))
     updater.job_queue.run_daily(send_reminder, time=datetime.time(hour=hour), days=days)
 
-    updater.dispatcher.add_handler(
-        CommandHandler(
-            "agregar",
-            add_meal_handler,
-            Filters.command & ~Filters.update.edited_message,
-        )
-    )
-    updater.dispatcher.add_handler(
-        CommandHandler(
-            "historial",
-            history_handler,
-            Filters.command & ~Filters.update.edited_message,
-        )
-    )
-    updater.dispatcher.add_handler(
-        CommandHandler(
-            "saltear", skip_handler, Filters.command & ~Filters.update.edited_message
-        )
-    )
+    for name, handler in COMMANDS:
+        updater.dispatcher.add_handler(commandHandler(name, handler))
 
     updater.dispatcher.add_handler(regexMessageHandler(r"\brica", rica_handler))
     updater.dispatcher.add_handler(

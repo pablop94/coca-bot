@@ -93,7 +93,7 @@ def history_handler(update, context):
 
         logger.info("Enviando historial de comidas.")
 
-    update.message.reply_text(body, parse_mode=ParseMode.MARKDOWN_V2)
+        update.message.reply_text(body, parse_mode=ParseMode.MARKDOWN_V2)
 
 
 @chat_id_required
