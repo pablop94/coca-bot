@@ -31,13 +31,23 @@ if __name__ == "__main__":
     updater.job_queue.run_daily(send_reminder, time=datetime.time(hour=hour), days=days)
 
     updater.dispatcher.add_handler(
-        CommandHandler("agregar", add_meal_handler, Filters.command)
+        CommandHandler(
+            "agregar",
+            add_meal_handler,
+            Filters.command & ~Filters.update.edited_message,
+        )
     )
     updater.dispatcher.add_handler(
-        CommandHandler("historial", history_handler, Filters.command)
+        CommandHandler(
+            "historial",
+            history_handler,
+            Filters.command & ~Filters.update.edited_message,
+        )
     )
     updater.dispatcher.add_handler(
-        CommandHandler("saltear", skip_handler, Filters.command)
+        CommandHandler(
+            "saltear", skip_handler, Filters.command & ~Filters.update.edited_message
+        )
     )
 
     updater.dispatcher.add_handler(regexMessageHandler(r"\brica", rica_handler))
