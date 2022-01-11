@@ -9,6 +9,7 @@ from src.handlers import (
     rica_handler,
     pegar_handler,
     chocolate_handler,
+    intentar_handler,
 )
 from src.exceptions import NoMealConfigured
 from telegram import ParseMode
@@ -245,5 +246,13 @@ class CocaTest(TestCase):
         context = get_mock_context()
         update = get_mock_update()
         chocolate_handler(update, context)
+
+        update.message.reply_audio.assert_called_once()
+
+    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    def test_intentar_handler(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        intentar_handler(update, context)
 
         update.message.reply_audio.assert_called_once()

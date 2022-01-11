@@ -117,6 +117,10 @@ def chocolate_handler(update, context):
     _send_audio(update, "chocolate.mp3", "chocolate")
 
 
+def intentar_handler(update, context):
+    _send_audio(update, "intentar.mp3", "intentar")
+
+
 def _send_audio(update, audio_name, title):
     logger.info(f"Enviando audio {audio_name}")
     with open(f"media/{audio_name}", "rb") as audio:

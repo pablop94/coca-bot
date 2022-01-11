@@ -11,6 +11,7 @@ from src.handlers import (
     pegar_handler,
     error_handler,
     chocolate_handler,
+    intentar_handler,
 )
 from telegram.ext import Updater, CommandHandler, MessageHandler
 from telegram.ext.filters import Filters
@@ -53,6 +54,9 @@ if __name__ == "__main__":
     )
     updater.dispatcher.add_handler(
         regexMessageHandler(r"\bchocolate\b", chocolate_handler)
+    )
+    updater.dispatcher.add_handler(
+        regexMessageHandler(r"\bintentar\b", intentar_handler)
     )
 
     updater.dispatcher.add_error_handler(error_handler)
