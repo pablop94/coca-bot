@@ -51,7 +51,7 @@ def get_mock_update(args=[]):
     return MockUpdate()
 
 
-class CocaTest(TestCase):
+class HandlerTest(TestCase):
     @patch.dict("os.environ", {"CHAT_ID": ""})
     @patch("src.handlers.get_skip", side_effect=[None])
     @patch("src.handlers.get_next_meal", side_effect=[("test name", "test meal", 4)])
