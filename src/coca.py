@@ -41,8 +41,8 @@ COMMANDS = [
 REACTIONS = [
     (r"\brica", rica_handler),
     (r"\b(comprar|pegar|compra)\b", pegar_handler),
-    (r"\bchocolate\b", chocolate_handler),
-    (r"\bintentar\b", intentar_handler),
+    (r"\bchocolate", chocolate_handler),
+    (r"\bintentar", intentar_handler),
 ]
 
 
