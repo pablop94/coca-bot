@@ -53,6 +53,8 @@ def add_handlers(dispatcher):
     for regex, handler in REACTIONS:
         dispatcher.add_handler(regexMessageHandler(regex, handler))
 
+    dispatcher.add_error_handler(error_handler)
+
 
 def start_bot():
     updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"))
@@ -62,8 +64,6 @@ def start_bot():
     updater.job_queue.run_daily(send_reminder, time=datetime.time(hour=hour), days=days)
 
     add_handlers(updater.dispatcher)
-
-    updater.dispatcher.add_error_handler(error_handler)
 
     updater.start_polling()
     updater.idle()
