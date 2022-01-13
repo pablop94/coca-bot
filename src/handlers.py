@@ -32,25 +32,29 @@ def chat_id_required(fn):
 
 
 def send_reminder(context):
+    send_reminder_from_bot(context.bot)
+
+
+def send_reminder_from_bot(bot):
     if not get_skip():
         try:
             name, meal, remaining = get_next_meal()
             add_history(name)
             logger.info("Enviando recordatorio de comida.")
-            context.bot.send_message(
+            bot.send_message(
                 os.environ.get("CHAT_ID"),
                 f"Hola `{name}` te toca comprar los ingredientes para hacer `{meal}`",
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
             if remaining == 0:
-                context.bot.send_message(
+                bot.send_message(
                     os.environ.get("CHAT_ID"),
                     "Además les informo que no hay más comidas configuradas, ponganse a pensar",
                     parse_mode=ParseMode.MARKDOWN_V2,
                 )
         except NoMealConfigured:
             logger.info("Comida sin configurar.")
-            context.bot.send_message(
+            bot.send_message(
                 os.environ.get("CHAT_ID"),
                 "Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas.",
             )

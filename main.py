@@ -3,6 +3,7 @@ import os
 from telegram import Bot, Update
 from telegram.ext import Dispatcher
 from src.coca import add_handlers
+from src.handlers import send_reminder_from_bot
 from src.logger import logger
 
 
@@ -16,4 +17,12 @@ def new_update(request):
         add_handlers(dispatcher)
 
         dispatcher.process_update(update)
+    return "ok"
+
+
+def send_reminder(request):
+    if request.method == "POST":
+        logger.info("POST request received")
+        bot = Bot(token=os.environ["TELEGRAM_TOKEN"])
+        send_reminder_from_bot(bot)
     return "ok"
