@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+from src.exceptions import NoMealConfigured
 
 
 class MockBot:
@@ -35,3 +36,7 @@ def get_mock_context(args=[]):
             self.bot.send_message = MagicMock()
 
     return MockContext()
+
+
+def no_meal_configured():
+    raise NoMealConfigured()
