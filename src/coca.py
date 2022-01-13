@@ -1,57 +1,21 @@
 import datetime
 import os
-import re
 
 from src.handlers import (
     send_reminder,
-    add_meal_handler,
-    history_handler,
-    skip_handler,
-    rica_handler,
-    pegar_handler,
-    chocolate_handler,
-    intentar_handler,
+    COMMANDS,
+    REACTIONS,
     error_handler,
 )
-from telegram.ext import Updater, CommandHandler, MessageHandler
-from telegram.ext.filters import Filters
-
-
-def regexMessageHandler(regex, handler):
-    return MessageHandler(
-        Filters.regex(re.compile(regex, re.IGNORECASE)) & ~Filters.command,
-        handler,
-    )
-
-
-def commandHandler(name, handler):
-    return CommandHandler(
-        name,
-        handler,
-        Filters.command & ~Filters.update.edited_message,
-    )
-
-
-COMMANDS = [
-    ("agregar", add_meal_handler),
-    ("historial", history_handler),
-    ("saltear", skip_handler),
-]
-
-REACTIONS = [
-    (r"\brica", rica_handler),
-    (r"\b(comprar|pegar|compra)\b", pegar_handler),
-    (r"\bchocolate", chocolate_handler),
-    (r"\bintentar", intentar_handler),
-]
+from telegram.ext import Updater
 
 
 def add_handlers(dispatcher):
-    for name, handler in COMMANDS:
-        dispatcher.add_handler(commandHandler(name, handler))
+    for command in COMMANDS:
+        dispatcher.add_handler(command)
 
-    for regex, handler in REACTIONS:
-        dispatcher.add_handler(regexMessageHandler(regex, handler))
+    for reaction in REACTIONS:
+        dispatcher.add_handler(reaction)
 
     dispatcher.add_error_handler(error_handler)
 
