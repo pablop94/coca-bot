@@ -1,35 +1,13 @@
 import datetime
 import os
-import re
 
 from src.handlers import (
     send_reminder,
     COMMANDS,
-    rica_handler,
-    pegar_handler,
-    chocolate_handler,
-    intentar_handler,
+    REACTIONS,
     error_handler,
 )
-from telegram.ext import Updater, MessageHandler
-from telegram.ext.filters import Filters
-
-
-def regexMessageHandler(regex, handler):
-    return MessageHandler(
-        Filters.regex(re.compile(regex, re.IGNORECASE)) & ~Filters.command,
-        handler,
-    )
-
-
-REACTIONS_ARGS = [
-    (r"\brica", rica_handler),
-    (r"\b(comprar|pegar|compra)\b", pegar_handler),
-    (r"\bchocolate", chocolate_handler),
-    (r"\bintentar", intentar_handler),
-]
-
-REACTIONS = [regexMessageHandler(*rargs) for rargs in REACTIONS_ARGS]
+from telegram.ext import Updater
 
 
 def add_handlers(dispatcher):
