@@ -32,26 +32,30 @@ def commandHandler(name, handler):
     )
 
 
-COMMANDS = [
+COMMANDS_ARGS = [
     ("agregar", add_meal_handler),
     ("historial", history_handler),
     ("saltear", skip_handler),
 ]
 
-REACTIONS = [
+COMMANDS = [commandHandler(*cargs) for cargs in COMMANDS_ARGS]
+
+REACTIONS_ARGS = [
     (r"\brica", rica_handler),
     (r"\b(comprar|pegar|compra)\b", pegar_handler),
     (r"\bchocolate", chocolate_handler),
     (r"\bintentar", intentar_handler),
 ]
 
+REACTIONS = [regexMessageHandler(*rargs) for rargs in REACTIONS_ARGS]
+
 
 def add_handlers(dispatcher):
-    for name, handler in COMMANDS:
-        dispatcher.add_handler(commandHandler(name, handler))
+    for command in COMMANDS:
+        dispatcher.add_handler(command)
 
-    for regex, handler in REACTIONS:
-        dispatcher.add_handler(regexMessageHandler(regex, handler))
+    for reaction in REACTIONS:
+        dispatcher.add_handler(reaction)
 
     dispatcher.add_error_handler(error_handler)
 
