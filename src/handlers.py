@@ -1,6 +1,7 @@
 import html
 import json
 import os
+import random
 import traceback
 
 from src.exceptions import NoMealConfigured
@@ -126,9 +127,10 @@ def intentar_handler(update, context):
 
 
 def _send_audio(update, audio_name, title):
-    logger.info(f"Enviando audio {audio_name}")
-    with open(f"media/{audio_name}", "rb") as audio:
-        update.message.reply_audio(audio=audio, title=title)
+    if random.randint(1, 100) < 25:
+        logger.info(f"Enviando audio {audio_name}")
+        with open(f"media/{audio_name}", "rb") as audio:
+            update.message.reply_audio(audio=audio, title=title)
 
 
 def error_handler(update, context):
