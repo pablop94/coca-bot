@@ -4,10 +4,9 @@ import os
 import random
 import traceback
 
-from src.decorators import chat_id_required
 from src.exceptions import NoMealConfigured
 from src.logger import logger
-from src.meals import add_meal, get_next_meal, history, add_history, get_skip, add_skip
+from src.meals import get_next_meal, add_history, get_skip
 from telegram import ParseMode, Update
 
 
@@ -40,53 +39,6 @@ def send_reminder_from_bot(bot):
             )
     else:
         logger.info("Salteando recordatorio debido a un skip.")
-
-
-@chat_id_required
-def add_meal_handler(update, context):
-    if len(context.args) < 2:
-        logger.info("Recibido agregar con parámetros incompletos.")
-        update.message.reply_text(
-            "Para que pueda agregar necesito que me pases un nombre y una comida"
-        )
-    else:
-        logger.info("Agregando recordatorio de comida.")
-        meal = " ".join(context.args[1:])
-        name = context.args[0]
-        add_meal(name, meal)
-        update.message.reply_text(
-            f"Ahí le agregué la comida `{meal}` a `{name}`",
-            parse_mode=ParseMode.MARKDOWN_V2,
-        )
-
-
-@chat_id_required
-def history_handler(update, context):
-    names = history()
-    aggregation = dict()
-    for bname in names:
-        name = bname if not type(bname) is bytes else bname.decode("utf-8")
-        if name not in aggregation:
-            aggregation[name] = 0
-        aggregation[name] += 1
-
-    if len(names) > 0:
-        body = "El historial es\n"
-        for name in aggregation.keys():
-            body += f"\n{name}: {aggregation[name]}"
-
-        logger.info("Enviando historial de comidas.")
-
-        update.message.reply_text(body, parse_mode=ParseMode.MARKDOWN_V2)
-
-
-@chat_id_required
-def skip_handler(update, context):
-    add_skip()
-
-    update.message.reply_text(
-        "Perfecto, me salteo una comida", parse_mode=ParseMode.MARKDOWN_V2
-    )
 
 
 def rica_handler(update, context):

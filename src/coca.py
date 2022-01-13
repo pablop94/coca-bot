@@ -4,16 +4,14 @@ import re
 
 from src.handlers import (
     send_reminder,
-    add_meal_handler,
-    history_handler,
-    skip_handler,
+    COMMANDS,
     rica_handler,
     pegar_handler,
     chocolate_handler,
     intentar_handler,
     error_handler,
 )
-from telegram.ext import Updater, CommandHandler, MessageHandler
+from telegram.ext import Updater, MessageHandler
 from telegram.ext.filters import Filters
 
 
@@ -23,22 +21,6 @@ def regexMessageHandler(regex, handler):
         handler,
     )
 
-
-def commandHandler(name, handler):
-    return CommandHandler(
-        name,
-        handler,
-        Filters.command & ~Filters.update.edited_message,
-    )
-
-
-COMMANDS_ARGS = [
-    ("agregar", add_meal_handler),
-    ("historial", history_handler),
-    ("saltear", skip_handler),
-]
-
-COMMANDS = [commandHandler(*cargs) for cargs in COMMANDS_ARGS]
 
 REACTIONS_ARGS = [
     (r"\brica", rica_handler),

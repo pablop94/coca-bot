@@ -126,7 +126,7 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.handlers.add_meal")
+    @patch("src.handlers.commands.add_meal")
     def test_add_meal_handler(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -159,7 +159,7 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.handlers.history", side_effect=[["test1", "test2", "test1"]])
+    @patch("src.handlers.commands.history", side_effect=[["test1", "test2", "test1"]])
     def test_history_handler(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -170,7 +170,7 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})
-    @patch("src.handlers.handlers.history", side_effect=[["test1", "test2", "test1"]])
+    @patch("src.handlers.commands.history", side_effect=[["test1", "test2", "test1"]])
     def test_history_handler_unknown_chat(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -197,7 +197,7 @@ class HandlerTest(TestCase):
         self.assertEqual(0, context.bot.send_message.call_count)
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.handlers.add_skip")
+    @patch("src.handlers.commands.add_skip")
     def test_skip_handler(self, skip_call, *args):
         context = get_mock_context()
         update = get_mock_update()
