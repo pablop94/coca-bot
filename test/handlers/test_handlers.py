@@ -1,55 +1,15 @@
-import random
 from unittest import TestCase
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, call
 
+from telegram import ParseMode
 from src.handlers import (
     send_reminder,
     add_meal_handler,
     history_handler,
     skip_handler,
-    rica_handler,
-    pegar_handler,
-    chocolate_handler,
-    intentar_handler,
 )
 from src.exceptions import NoMealConfigured
-from telegram import ParseMode
-
-
-class MockBot:
-    pass
-
-
-class MockChat:
-    def __init__(self):
-        self.id = 1
-
-
-class MockMessage:
-    def __init__(self):
-        self.chat = MockChat()
-        self.reply_text = MagicMock()
-        self.reply_photo = MagicMock()
-        self.reply_audio = MagicMock()
-
-
-def get_mock_context(args=[]):
-    class MockContext:
-        def __init__(self):
-            self.bot = MockBot()
-            self.args = args
-            self.bot.send_message = MagicMock()
-
-    return MockContext()
-
-
-def get_mock_update(args=[]):
-    class MockUpdate:
-        def __init__(self):
-            self.message = MockMessage()
-            self.args = args
-
-    return MockUpdate()
+from test.base import get_mock_context, get_mock_update
 
 
 class HandlerTest(TestCase):
@@ -240,49 +200,3 @@ class HandlerTest(TestCase):
         update.message.reply_photo.assert_called_once_with(
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
-
-
-class AudioHandlers(TestCase):
-    def setUp(self):
-        random.seed(1)
-
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
-    def test_rica_handler(self, *args):
-        context = get_mock_context()
-        update = get_mock_update()
-        rica_handler(update, context)
-
-        update.message.reply_audio.assert_called_once()
-
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
-    def test_rica_handler_random_25(self, *args):
-        random.seed(25)
-        context = get_mock_context()
-        update = get_mock_update()
-        rica_handler(update, context)
-
-        update.message.reply_audio.assert_not_called()
-
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
-    def test_pegar_handler(self, *args):
-        context = get_mock_context()
-        update = get_mock_update()
-        pegar_handler(update, context)
-
-        update.message.reply_audio.assert_called_once()
-
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
-    def test_chocolate_handler(self, *args):
-        context = get_mock_context()
-        update = get_mock_update()
-        chocolate_handler(update, context)
-
-        update.message.reply_audio.assert_called_once()
-
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
-    def test_intentar_handler(self, *args):
-        context = get_mock_context()
-        update = get_mock_update()
-        intentar_handler(update, context)
-
-        update.message.reply_audio.assert_called_once()
