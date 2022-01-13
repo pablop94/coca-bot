@@ -54,9 +54,12 @@ def get_mock_update(args=[]):
 
 class HandlerTest(TestCase):
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.get_skip", side_effect=[None])
-    @patch("src.handlers.get_next_meal", side_effect=[("test name", "test meal", 4)])
-    @patch("src.handlers.add_history")
+    @patch("src.handlers.handlers.get_skip", side_effect=[None])
+    @patch(
+        "src.handlers.handlers.get_next_meal",
+        side_effect=[("test name", "test meal", 4)],
+    )
+    @patch("src.handlers.handlers.add_history")
     def test_send_reminder(self, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -68,9 +71,12 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.get_skip", side_effect=[None])
-    @patch("src.handlers.get_next_meal", side_effect=[("test name", "test meal", 4)])
-    @patch("src.handlers.add_history")
+    @patch("src.handlers.handlers.get_skip", side_effect=[None])
+    @patch(
+        "src.handlers.handlers.get_next_meal",
+        side_effect=[("test name", "test meal", 4)],
+    )
+    @patch("src.handlers.handlers.add_history")
     def test_send_reminder_add_history(self, addhistoryfn, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -78,9 +84,12 @@ class HandlerTest(TestCase):
         addhistoryfn.assert_called_once_with("test name")
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.get_skip", side_effect=[None])
-    @patch("src.handlers.get_next_meal", side_effect=[("test name", "test meal", 0)])
-    @patch("src.handlers.add_history")
+    @patch("src.handlers.handlers.get_skip", side_effect=[None])
+    @patch(
+        "src.handlers.handlers.get_next_meal",
+        side_effect=[("test name", "test meal", 0)],
+    )
+    @patch("src.handlers.handlers.add_history")
     def test_send_reminder_no_more_meals(self, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -105,8 +114,8 @@ class HandlerTest(TestCase):
         raise NoMealConfigured()
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.get_skip", side_effect=[None])
-    @patch("src.handlers.get_next_meal", side_effect=no_meal_configured)
+    @patch("src.handlers.handlers.get_skip", side_effect=[None])
+    @patch("src.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_send_reminder_no_meal(self, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -117,7 +126,7 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.add_meal")
+    @patch("src.handlers.handlers.add_meal")
     def test_add_meal_handler(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -128,7 +137,7 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.get_next_meal", side_effect=no_meal_configured)
+    @patch("src.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_add_meal_handler_no_args(self, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -139,7 +148,7 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})
-    @patch("src.handlers.get_next_meal", side_effect=no_meal_configured)
+    @patch("src.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_add_meal_handler_unknown_chat(self, *args):
         context = get_mock_context([1, 2])
         update = get_mock_update()
@@ -150,7 +159,7 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.history", side_effect=[["test1", "test2", "test1"]])
+    @patch("src.handlers.handlers.history", side_effect=[["test1", "test2", "test1"]])
     def test_history_handler(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -161,7 +170,7 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})
-    @patch("src.handlers.history", side_effect=[["test1", "test2", "test1"]])
+    @patch("src.handlers.handlers.history", side_effect=[["test1", "test2", "test1"]])
     def test_history_handler_unknown_chat(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -172,9 +181,12 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.get_skip", side_effect=["skip"])
-    @patch("src.handlers.get_next_meal", side_effect=[("test name", "test meal", 0)])
-    @patch("src.handlers.add_history")
+    @patch("src.handlers.handlers.get_skip", side_effect=["skip"])
+    @patch(
+        "src.handlers.handlers.get_next_meal",
+        side_effect=[("test name", "test meal", 0)],
+    )
+    @patch("src.handlers.handlers.add_history")
     def test_send_reminder_skip_active(self, history_call, get_next_meal_call, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -185,7 +197,7 @@ class HandlerTest(TestCase):
         self.assertEqual(0, context.bot.send_message.call_count)
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.add_skip")
+    @patch("src.handlers.handlers.add_skip")
     def test_skip_handler(self, skip_call, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -197,9 +209,12 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.get_skip", side_effect=["skip", None])
-    @patch("src.handlers.get_next_meal", side_effect=[("test name", "test meal", 0)])
-    @patch("src.handlers.add_history")
+    @patch("src.handlers.handlers.get_skip", side_effect=["skip", None])
+    @patch(
+        "src.handlers.handlers.get_next_meal",
+        side_effect=[("test name", "test meal", 0)],
+    )
+    @patch("src.handlers.handlers.add_history")
     def test_send_reminders_skip_active(self, history_call, get_next_meal_call, *args):
         context = get_mock_context()
         send_reminder(context)
