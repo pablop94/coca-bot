@@ -3,6 +3,7 @@ import json
 import os
 import traceback
 
+from src.decorators import random_run
 from src.exceptions import NoMealConfigured
 from src.logger import logger
 from src.meals import get_next_meal, add_history, get_skip
@@ -64,5 +65,6 @@ def error_handler(update, context):
     )
 
 
+@random_run
 def reply_to_coca_handler(update: Update, context: CallbackContext):
     update.message.reply_text("Soy una entidad virtual, no me contestes", quote=False)

@@ -1,4 +1,5 @@
 import os
+import random
 from src.logger import logger
 
 
@@ -20,5 +21,13 @@ def chat_id_required(fn):
             update.message.reply_photo(
                 "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
             )
+
+    return inner
+
+
+def random_run(fn):
+    def inner(*args, **kwargs):
+        if random.randint(1, 100) < 25:
+            fn(*args, **kwargs)
 
     return inner

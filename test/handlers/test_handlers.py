@@ -120,6 +120,9 @@ class HandlerTest(TestCase):
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
     def test_reply_to_coca_handler(self, *args):
+        import random
+
+        random.seed(1)
         context = get_mock_context()
         update = get_mock_update()
         reply_to_coca_handler(update, context)
@@ -127,3 +130,14 @@ class HandlerTest(TestCase):
         update.message.reply_text.assert_called_once_with(
             "Soy una entidad virtual, no me contestes", quote=False
         )
+
+    @patch.dict("os.environ", {"CHAT_ID": ""})
+    def test_reply_to_coca_handler_random_high(self, *args):
+        import random
+
+        random.seed(26)
+        context = get_mock_context()
+        update = get_mock_update()
+        reply_to_coca_handler(update, context)
+
+        update.message.reply_text.assert_not_called()
