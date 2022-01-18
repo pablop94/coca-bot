@@ -4,8 +4,9 @@ from unittest.mock import patch, call
 from telegram import ParseMode
 from src.handlers import (
     send_reminder,
+    reply_to_coca_handler,
 )
-from test.base import get_mock_context, no_meal_configured
+from test.base import get_mock_context, no_meal_configured, get_mock_update
 
 
 class HandlerTest(TestCase):
@@ -116,3 +117,13 @@ class HandlerTest(TestCase):
         self.assertTrue(get_next_meal_call.called)
 
         self.assertEqual(2, context.bot.send_message.call_count)
+
+    @patch.dict("os.environ", {"CHAT_ID": ""})
+    def test_reply_to_coca_handler(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        reply_to_coca_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "Soy una entidad virtual, no me contestes", quote=False
+        )

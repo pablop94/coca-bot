@@ -6,8 +6,10 @@ from src.handlers import (
     COMMANDS,
     REACTIONS,
     error_handler,
+    reply_to_coca_handler,
 )
-from telegram.ext import Updater
+from telegram.ext import Updater, MessageHandler
+from telegram.ext.filters import Filters
 
 
 def add_handlers(dispatcher):
@@ -16,6 +18,10 @@ def add_handlers(dispatcher):
 
     for reaction in REACTIONS:
         dispatcher.add_handler(reaction)
+
+    dispatcher.add_handler(
+        MessageHandler(Filters.reply & ~Filters.command, reply_to_coca_handler)
+    )
 
     dispatcher.add_error_handler(error_handler)
 

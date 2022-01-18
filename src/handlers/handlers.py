@@ -7,6 +7,7 @@ from src.exceptions import NoMealConfigured
 from src.logger import logger
 from src.meals import get_next_meal, add_history, get_skip
 from telegram import ParseMode, Update
+from telegram.ext import CallbackContext
 
 
 def send_reminder(context):
@@ -61,3 +62,7 @@ def error_handler(update, context):
     context.bot.send_message(
         os.environ.get("DEVELOPER_CHAT_ID"), text=message, parse_mode=ParseMode.HTML
     )
+
+
+def reply_to_coca_handler(update: Update, context: CallbackContext):
+    update.message.reply_text("Soy una entidad virtual, no me contestes", quote=False)
