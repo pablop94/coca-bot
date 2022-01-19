@@ -8,7 +8,8 @@ from src.handlers import (
     error_handler,
     reply_to_coca_handler,
 )
-from telegram.ext import Updater, MessageHandler
+from telegram import ParseMode
+from telegram.ext import Updater, MessageHandler, Defaults
 from telegram.ext.filters import Filters
 
 
@@ -27,11 +28,14 @@ def add_handlers(dispatcher):
 
 
 def start_bot():
-    updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"))
+    defaults = Defaults(quote=False, parse_mode=ParseMode.MARKDOWN_V2)
+    updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"), defaults=defaults)
 
     hour = int(os.environ.get("REMINDER_HOUR_UTC"))
     days = tuple(int(e) for e in os.environ.get("REMINDER_DAYS").split(","))
-    updater.job_queue.run_daily(send_reminder, time=datetime.time(hour=hour), days=days)
+    updater.job_queue.run_daily(
+        send_reminder, time=datetime.time(hour=hour, minute=57), days=days
+    )
 
     add_handlers(updater.dispatcher)
 

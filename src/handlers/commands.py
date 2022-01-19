@@ -1,10 +1,10 @@
-from telegram import ParseMode
 from telegram.ext import CommandHandler
 from telegram.ext.filters import Filters
 
 from src.decorators import chat_id_required
 from src.logger import logger
-from src.meals import add_meal, history, add_skip, get_next_meals
+from src.exceptions import NoMealConfigured
+from src.meals import add_meal, history, add_skip, get_next_meals, get_next_meal
 
 
 @chat_id_required
@@ -12,7 +12,7 @@ def add_meal_handler(update, context):
     if len(context.args) < 2:
         logger.info("Recibido agregar con parámetros incompletos.")
         update.message.reply_text(
-            "Para que pueda agregar necesito que me pases un nombre y una comida"
+            "Para que pueda agregar necesito que me pases un nombre y una comida\\."
         )
     else:
         logger.info("Agregando recordatorio de comida.")
@@ -20,8 +20,7 @@ def add_meal_handler(update, context):
         name = context.args[0]
         add_meal(name, meal)
         update.message.reply_text(
-            f"Ahí le agregué la comida `{meal}` a *{name}*",
-            parse_mode=ParseMode.MARKDOWN_V2,
+            f"Ahí le agregué la comida `{meal}` a *{name}*\\.",
         )
 
 
@@ -42,16 +41,15 @@ def history_handler(update, context):
 
         logger.info("Enviando historial de comidas.")
 
-        update.message.reply_text(body, parse_mode=ParseMode.MARKDOWN_V2)
+        update.message.reply_text(body)
 
 
 @chat_id_required
 def skip_handler(update, context):
     add_skip()
+    logger.info("Agregando skip.")
 
-    update.message.reply_text(
-        "Perfecto, me salteo una comida", parse_mode=ParseMode.MARKDOWN_V2
-    )
+    update.message.reply_text("Perfecto, me salteo una comida\\.")
 
 
 @chat_id_required
@@ -59,15 +57,29 @@ def next_meals_handler(update, context):
     meals = get_next_meals()
 
     if meals:
+        logger.info("Enviando proximas comidas.")
         message = "Las próximas comidas son:\n"
         for name, meal in meals:
             message += f"\\- `{meal}` a cargo de *{name}*\\.\n"
 
-        update.message.reply_text(
-            message, parse_mode=ParseMode.MARKDOWN_V2, quote=False
-        )
+        update.message.reply_text(message)
     else:
-        update.message.reply_text("No hay próximas comidas")
+        logger.info("Enviando ausencia de próximas comidas.")
+        update.message.reply_text("No hay próximas comidas\\.")
+
+
+@chat_id_required
+def delete_meal_handler(update, context):
+    try:
+        name, meal, remaining = get_next_meal()
+        logger.info("Borrando comida.")
+        update.message.reply_text(
+            f"Borré la comida `{meal}` a cargo de *{name}*\\.",
+        )
+
+    except NoMealConfigured:
+        logger.info("No hay comidas para borrar.")
+        update.message.reply_text("Nada que borrar, no hay comidas\\.")
 
 
 def commandHandler(name, handler):
@@ -83,6 +95,7 @@ COMMANDS_ARGS = [
     ("historial", history_handler),
     ("saltear", skip_handler),
     ("proximas", next_meals_handler),
+    ("borrar", delete_meal_handler),
 ]
 
 COMMANDS = [commandHandler(*cargs) for cargs in COMMANDS_ARGS]

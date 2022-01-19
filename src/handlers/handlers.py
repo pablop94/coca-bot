@@ -23,20 +23,20 @@ def send_reminder_from_bot(bot):
             logger.info("Enviando recordatorio de comida.")
             bot.send_message(
                 os.environ.get("CHAT_ID"),
-                f"Hola `{name}` te toca comprar los ingredientes para hacer `{meal}`",
+                f"Hola `{name}` te toca comprar los ingredientes para hacer `{meal}`\\.",
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
             if remaining == 0:
                 bot.send_message(
                     os.environ.get("CHAT_ID"),
-                    "Además les informo que no hay más comidas configuradas, ponganse a pensar",
+                    "Además les informo que no hay más comidas configuradas, ponganse a pensar\\.",
                     parse_mode=ParseMode.MARKDOWN_V2,
                 )
         except NoMealConfigured:
             logger.info("Comida sin configurar.")
             bot.send_message(
                 os.environ.get("CHAT_ID"),
-                "Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas.",
+                "Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas\\.",
             )
     else:
         logger.info("Salteando recordatorio debido a un skip.")
@@ -67,4 +67,4 @@ def error_handler(update, context):
 
 @random_run
 def reply_to_coca_handler(update: Update, context: CallbackContext):
-    update.message.reply_text("Soy una entidad virtual, no me contestes", quote=False)
+    update.message.reply_text("Soy una entidad virtual, no me contestes\\.")
