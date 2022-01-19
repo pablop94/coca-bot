@@ -47,6 +47,7 @@ def history_handler(update, context):
 @chat_id_required
 def skip_handler(update, context):
     add_skip()
+    logger.info("Agregando skip.")
 
     update.message.reply_text("Perfecto, me salteo una comida\\.")
 
@@ -56,12 +57,14 @@ def next_meals_handler(update, context):
     meals = get_next_meals()
 
     if meals:
+        logger.info("Enviando proximas comidas.")
         message = "Las próximas comidas son:\n"
         for name, meal in meals:
             message += f"\\- `{meal}` a cargo de *{name}*\\.\n"
 
         update.message.reply_text(message)
     else:
+        logger.info("Enviando ausencia de próximas comidas.")
         update.message.reply_text("No hay próximas comidas\\.")
 
 
@@ -69,11 +72,13 @@ def next_meals_handler(update, context):
 def delete_meal_handler(update, context):
     try:
         name, meal, remaining = get_next_meal()
+        logger.info("Borrando comida.")
         update.message.reply_text(
             f"Borré la comida `{meal}` a cargo de *{name}*\\.",
         )
 
     except NoMealConfigured:
+        logger.info("No hay comidas para borrar.")
         update.message.reply_text("Nada que borrar, no hay comidas\\.")
 
 
