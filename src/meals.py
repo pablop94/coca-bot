@@ -38,3 +38,12 @@ def get_skip():
 
 def add_skip():
     push(SKIP_KEY, "skip")
+
+
+def get_next_meals():
+    result = []
+    for item in get(MEALS_KEY):
+        name, meal = json.loads(item).values()
+        result.append((name, meal))
+
+    return result

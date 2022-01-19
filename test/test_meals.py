@@ -13,6 +13,7 @@ from src.meals import (
     add_history,
     get_skip,
     add_skip,
+    get_next_meals,
 )
 from src.exceptions import NoMealConfigured
 
@@ -66,3 +67,18 @@ class MealTest(TestCase):
         add_skip()
 
         push_call.assert_called_once_with(SKIP_KEY, "skip")
+
+    @patch(
+        "src.meals.get",
+        side_effect=[
+            [
+                json.dumps({"name": "test", "meal": "test meal"}),
+                json.dumps({"name": "test2", "meal": "test meal2"}),
+            ]
+        ],
+    )
+    def test_get_next_meals(self, get_call):
+        result = get_next_meals()
+
+        get_call.assert_called_once_with(MEALS_KEY)
+        self.assertEqual([("test", "test meal"), ("test2", "test meal2")], result)
