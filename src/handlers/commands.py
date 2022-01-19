@@ -64,11 +64,9 @@ def next_meals_handler(update, context):
         for name, meal in meals:
             message += f"\\- `{meal}` a cargo de *{name}*\\.\n"
 
-        update.message.reply_text(
-            message, parse_mode=ParseMode.MARKDOWN_V2, quote=False
-        )
+        update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
     else:
-        update.message.reply_text("No hay próximas comidas", quote=False)
+        update.message.reply_text("No hay próximas comidas")
 
 
 @chat_id_required
@@ -78,11 +76,10 @@ def delete_meal_handler(update, context):
         update.message.reply_text(
             f"Borré la comida `{meal}` a cargo de *{name}*",
             parse_mode=ParseMode.MARKDOWN_V2,
-            quote=False,
         )
 
     except NoMealConfigured:
-        update.message.reply_text("Nada que borrar, no hay comidas.", quote=False)
+        update.message.reply_text("Nada que borrar, no hay comidas.")
 
 
 def commandHandler(name, handler):

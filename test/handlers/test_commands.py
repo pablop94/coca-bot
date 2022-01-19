@@ -115,7 +115,6 @@ class CommandsTest(TestCase):
 \\- `test meal2` a cargo de *test name2*\\.
 """,
             parse_mode=ParseMode.MARKDOWN_V2,
-            quote=False,
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
@@ -126,9 +125,7 @@ class CommandsTest(TestCase):
         next_meals_handler(update, context)
 
         self.assertTrue(get_next_meals_call.called)
-        update.message.reply_text.assert_called_once_with(
-            "No hay próximas comidas", quote=False
-        )
+        update.message.reply_text.assert_called_once_with("No hay próximas comidas")
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})
     def test_next_meals_handler_unknown_chat(self, *args):
@@ -154,7 +151,6 @@ class CommandsTest(TestCase):
         update.message.reply_text.assert_called_once_with(
             "Borré la comida `test meal` a cargo de *test name*",
             parse_mode=ParseMode.MARKDOWN_V2,
-            quote=False,
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
@@ -170,7 +166,6 @@ class CommandsTest(TestCase):
         self.assertTrue(get_next_meal_call.called)
         update.message.reply_text.assert_called_once_with(
             "Nada que borrar, no hay comidas.",
-            quote=False,
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})

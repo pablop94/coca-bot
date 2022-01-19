@@ -8,7 +8,7 @@ from src.handlers import (
     error_handler,
     reply_to_coca_handler,
 )
-from telegram.ext import Updater, MessageHandler
+from telegram.ext import Updater, MessageHandler, Defaults
 from telegram.ext.filters import Filters
 
 
@@ -27,7 +27,8 @@ def add_handlers(dispatcher):
 
 
 def start_bot():
-    updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"))
+    defaults = Defaults(quote=False)
+    updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"), defaults=defaults)
 
     hour = int(os.environ.get("REMINDER_HOUR_UTC"))
     days = tuple(int(e) for e in os.environ.get("REMINDER_DAYS").split(","))

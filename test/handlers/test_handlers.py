@@ -128,7 +128,7 @@ class HandlerTest(TestCase):
         reply_to_coca_handler(update, context)
 
         update.message.reply_text.assert_called_once_with(
-            "Soy una entidad virtual, no me contestes", quote=False
+            "Soy una entidad virtual, no me contestes"
         )
 
     @patch.dict("os.environ", {"CHAT_ID": ""})

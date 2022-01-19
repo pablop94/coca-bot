@@ -67,4 +67,4 @@ def error_handler(update, context):
 
 @random_run
 def reply_to_coca_handler(update: Update, context: CallbackContext):
-    update.message.reply_text("Soy una entidad virtual, no me contestes", quote=False)
+    update.message.reply_text("Soy una entidad virtual, no me contestes")
