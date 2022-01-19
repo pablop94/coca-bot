@@ -4,7 +4,7 @@ from telegram.ext.filters import Filters
 
 from src.decorators import chat_id_required
 from src.logger import logger
-from src.meals import add_meal, history, add_skip
+from src.meals import add_meal, history, add_skip, get_next_meals
 
 
 @chat_id_required
@@ -20,7 +20,7 @@ def add_meal_handler(update, context):
         name = context.args[0]
         add_meal(name, meal)
         update.message.reply_text(
-            f"Ahí le agregué la comida `{meal}` a `{name}`",
+            f"Ahí le agregué la comida `{meal}` a *{name}*",
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
@@ -54,6 +54,22 @@ def skip_handler(update, context):
     )
 
 
+@chat_id_required
+def next_meals_handler(update, context):
+    meals = get_next_meals()
+
+    if meals:
+        message = "Las próximas comidas son:\n"
+        for name, meal in meals:
+            message += f"\\- `{meal}` a cargo de *{name}*\\.\n"
+
+        update.message.reply_text(
+            message, parse_mode=ParseMode.MARKDOWN_V2, quote=False
+        )
+    else:
+        update.message.reply_text("No hay próximas comidas")
+
+
 def commandHandler(name, handler):
     return CommandHandler(
         name,
@@ -66,6 +82,7 @@ COMMANDS_ARGS = [
     ("agregar", add_meal_handler),
     ("historial", history_handler),
     ("saltear", skip_handler),
+    ("proximas", next_meals_handler),
 ]
 
 COMMANDS = [commandHandler(*cargs) for cargs in COMMANDS_ARGS]

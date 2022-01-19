@@ -18,6 +18,11 @@ Con este comando vemos un contador histórico de quienes se encargaron de las co
 ```
 Con este comando Coca se saltea un recordatorio.
 
+```
+/proximas
+```
+Con este comando Coca te muestra las próximas comidas.
+
 ## Variables de ambiente
 - `CHAT_ID` el chat donde se enviará el recordatorio.
 - `DEVELOPER_CHAT_ID` el chat donde se enviarán errores en caso de haberlos.
