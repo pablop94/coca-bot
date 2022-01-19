@@ -2,26 +2,14 @@
 
 La coca es un bot que nace para recordarnos a un grupo de amigues quienes tienen que hacer las compras para las juntadas.
 
-## Modo de uso
-```
-/agregar [nombre] [comida] 
-```
-Con este comando agregamos una comida a la lista. Se enviará un recordatorio los días `REMINDER_DAYS` a las `REMINDER_HOUR_UTC` en punto, teniendo en cuenta el orden en el que fueron ingresadas.
+## Comandos
+`/agregar [nombre] [comida]` Con este comando agregamos una comida a la lista. Se enviará un recordatorio los días `REMINDER_DAYS` a las `REMINDER_HOUR_UTC` en punto, teniendo en cuenta el orden en el que fueron ingresadas.
 
-```
-/historial
-```
-Con este comando vemos un contador histórico de quienes se encargaron de las comidas.
+`/historial` Con este comando vemos un contador histórico de quienes se encargaron de las comidas.
 
-```
-/saltear
-```
-Con este comando Coca se saltea un recordatorio.
+`/saltear` Con este comando Coca se saltea un recordatorio.
 
-```
-/proximas
-```
-Con este comando Coca te muestra las próximas comidas.
+`/proximas` Con este comando Coca te muestra las próximas comidas.
 
 ## Variables de ambiente
 - `CHAT_ID` el chat donde se enviará el recordatorio.
