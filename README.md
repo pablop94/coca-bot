@@ -11,6 +11,8 @@ La coca es un bot que nace para recordarnos a un grupo de amigues quienes tienen
 
 `/proximas` Con este comando Coca te muestra las próximas comidas.
 
+`/borrar` Con este comando Coca borra la siguiente comida.
+
 ## Variables de ambiente
 - `CHAT_ID` el chat donde se enviará el recordatorio.
 - `DEVELOPER_CHAT_ID` el chat donde se enviarán errores en caso de haberlos.

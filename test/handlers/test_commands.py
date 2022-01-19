@@ -7,6 +7,7 @@ from src.handlers import (
     history_handler,
     skip_handler,
     next_meals_handler,
+    delete_meal_handler,
 )
 from test.base import get_mock_context, get_mock_update, no_meal_configured
 
@@ -125,13 +126,58 @@ class CommandsTest(TestCase):
         next_meals_handler(update, context)
 
         self.assertTrue(get_next_meals_call.called)
-        update.message.reply_text.assert_called_once_with("No hay próximas comidas")
+        update.message.reply_text.assert_called_once_with(
+            "No hay próximas comidas", quote=False
+        )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})
     def test_next_meals_handler_unknown_chat(self, *args):
         context = get_mock_context()
         update = get_mock_update()
         next_meals_handler(update, context)
+
+        update.message.reply_photo.assert_called_once_with(
+            "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
+        )
+
+    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @patch(
+        "src.handlers.commands.get_next_meal",
+        side_effect=[("test name", "test meal", 4)],
+    )
+    def test_delete_meal_handler(self, get_next_meal_call, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        delete_meal_handler(update, context)
+
+        self.assertTrue(get_next_meal_call.called)
+        update.message.reply_text.assert_called_once_with(
+            "Borré la comida `test meal` a cargo de *test name*",
+            parse_mode=ParseMode.MARKDOWN_V2,
+            quote=False,
+        )
+
+    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @patch(
+        "src.handlers.commands.get_next_meal",
+        side_effect=no_meal_configured,
+    )
+    def test_delete_meal_handler_no_meals(self, get_next_meal_call, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        delete_meal_handler(update, context)
+
+        self.assertTrue(get_next_meal_call.called)
+        update.message.reply_text.assert_called_once_with(
+            "Nada que borrar, no hay comidas.",
+            quote=False,
+        )
+
+    @patch.dict("os.environ", {"CHAT_ID": "2"})
+    def test_delete_meal_handler_unknown_chat(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        delete_meal_handler(update, context)
 
         update.message.reply_photo.assert_called_once_with(
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
