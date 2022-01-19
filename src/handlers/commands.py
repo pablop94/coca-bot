@@ -1,4 +1,3 @@
-from telegram import ParseMode
 from telegram.ext import CommandHandler
 from telegram.ext.filters import Filters
 
@@ -13,7 +12,7 @@ def add_meal_handler(update, context):
     if len(context.args) < 2:
         logger.info("Recibido agregar con parámetros incompletos.")
         update.message.reply_text(
-            "Para que pueda agregar necesito que me pases un nombre y una comida"
+            "Para que pueda agregar necesito que me pases un nombre y una comida\\."
         )
     else:
         logger.info("Agregando recordatorio de comida.")
@@ -21,8 +20,7 @@ def add_meal_handler(update, context):
         name = context.args[0]
         add_meal(name, meal)
         update.message.reply_text(
-            f"Ahí le agregué la comida `{meal}` a *{name}*",
-            parse_mode=ParseMode.MARKDOWN_V2,
+            f"Ahí le agregué la comida `{meal}` a *{name}*\\.",
         )
 
 
@@ -43,16 +41,14 @@ def history_handler(update, context):
 
         logger.info("Enviando historial de comidas.")
 
-        update.message.reply_text(body, parse_mode=ParseMode.MARKDOWN_V2)
+        update.message.reply_text(body)
 
 
 @chat_id_required
 def skip_handler(update, context):
     add_skip()
 
-    update.message.reply_text(
-        "Perfecto, me salteo una comida", parse_mode=ParseMode.MARKDOWN_V2
-    )
+    update.message.reply_text("Perfecto, me salteo una comida\\.")
 
 
 @chat_id_required
@@ -64,9 +60,9 @@ def next_meals_handler(update, context):
         for name, meal in meals:
             message += f"\\- `{meal}` a cargo de *{name}*\\.\n"
 
-        update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
+        update.message.reply_text(message)
     else:
-        update.message.reply_text("No hay próximas comidas")
+        update.message.reply_text("No hay próximas comidas\\.")
 
 
 @chat_id_required
@@ -74,12 +70,11 @@ def delete_meal_handler(update, context):
     try:
         name, meal, remaining = get_next_meal()
         update.message.reply_text(
-            f"Borré la comida `{meal}` a cargo de *{name}*",
-            parse_mode=ParseMode.MARKDOWN_V2,
+            f"Borré la comida `{meal}` a cargo de *{name}*\\.",
         )
 
     except NoMealConfigured:
-        update.message.reply_text("Nada que borrar, no hay comidas.")
+        update.message.reply_text("Nada que borrar, no hay comidas\\.")
 
 
 def commandHandler(name, handler):

@@ -23,7 +23,7 @@ class HandlerTest(TestCase):
 
         context.bot.send_message.assert_called_once_with(
             "",
-            "Hola `test name` te toca comprar los ingredientes para hacer `test meal`",
+            "Hola `test name` te toca comprar los ingredientes para hacer `test meal`\\.",
             parse_mode=ParseMode().MARKDOWN_V2,
         )
 
@@ -56,12 +56,12 @@ class HandlerTest(TestCase):
             [
                 call(
                     "",
-                    "Hola `test name` te toca comprar los ingredientes para hacer `test meal`",
+                    "Hola `test name` te toca comprar los ingredientes para hacer `test meal`\\.",
                     parse_mode=ParseMode().MARKDOWN_V2,
                 ),
                 call(
                     "",
-                    "Además les informo que no hay más comidas configuradas, ponganse a pensar",
+                    "Además les informo que no hay más comidas configuradas, ponganse a pensar\\.",
                     parse_mode=ParseMode().MARKDOWN_V2,
                 ),
             ]
@@ -76,7 +76,7 @@ class HandlerTest(TestCase):
 
         context.bot.send_message.assert_called_once_with(
             "",
-            "Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas.",
+            "Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas\\.",
         )
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
@@ -128,7 +128,7 @@ class HandlerTest(TestCase):
         reply_to_coca_handler(update, context)
 
         update.message.reply_text.assert_called_once_with(
-            "Soy una entidad virtual, no me contestes"
+            "Soy una entidad virtual, no me contestes\\."
         )
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
