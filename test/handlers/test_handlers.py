@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import patch, call
+from unittest.mock import patch, call, MagicMock
 
 from telegram import ParseMode
 from src.handlers import (
@@ -119,17 +119,42 @@ class HandlerTest(TestCase):
         self.assertEqual(2, context.bot.send_message.call_count)
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
+    @patch.dict("os.environ", {"TELEGRAM_TOKEN": "25:test"})
     def test_reply_to_coca_handler(self, *args):
+        """El id de usuario del bot es la primera parte del token, antes de los :"""
         import random
 
         random.seed(1)
         context = get_mock_context()
         update = get_mock_update()
+
+        update.message.reply_to_message = MagicMock()
+        update.message.reply_to_message.from_user = MagicMock()
+        update.message.reply_to_message.from_user.id = 25
+
         reply_to_coca_handler(update, context)
 
         update.message.reply_text.assert_called_once_with(
             "Soy una entidad virtual, no me contestes\\."
         )
+
+    @patch.dict("os.environ", {"CHAT_ID": ""})
+    @patch.dict("os.environ", {"TELEGRAM_TOKEN": "25:test"})
+    def test_reply_to_coca_handler_other_chat(self, *args):
+        """El id de usuario del bot es la primera parte del token, antes de los :"""
+        import random
+
+        random.seed(1)
+        context = get_mock_context()
+        update = get_mock_update()
+
+        update.message.reply_to_message = MagicMock()
+        update.message.reply_to_message.from_user = MagicMock()
+        update.message.reply_to_message.from_user.id = 27
+
+        reply_to_coca_handler(update, context)
+
+        update.message.reply_text.assert_not_called()
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
     def test_reply_to_coca_handler_random_high(self, *args):
