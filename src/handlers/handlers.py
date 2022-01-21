@@ -67,4 +67,7 @@ def error_handler(update, context):
 
 @random_run
 def reply_to_coca_handler(update: Update, context: CallbackContext):
-    update.message.reply_text("Soy una entidad virtual, no me contestes\\.")
+    if update.message.reply_to_message.from_user.id == int(
+        os.environ.get("TELEGRAM_TOKEN").split(":")[0]
+    ):
+        update.message.reply_text("Soy una entidad virtual, no me contestes\\.")
