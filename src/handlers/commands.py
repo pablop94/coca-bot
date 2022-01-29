@@ -78,12 +78,11 @@ def next_meals_handler(update, context):
 @chat_id_required
 def delete_meal_handler(update, context):
     try:
-        if len(context.args) > 0 and context.args[0] == "ultima":
-            func = get_last_meal
-        else:
-            func = get_next_meal
+        retrieve_func = (
+            get_last_meal if _is_last_meal_deletion(context.args) else get_next_meal
+        )
 
-        name, meal, *_ = func()
+        name, meal, *_ = retrieve_func()
         logger.info("Borrando comida.")
         update.message.reply_text(
             f"Borré la comida `{meal}` a cargo de *{name}*\\.",
@@ -92,6 +91,10 @@ def delete_meal_handler(update, context):
     except NoMealConfigured:
         logger.info("No hay comidas para borrar.")
         update.message.reply_text("Nada que borrar, no hay comidas\\.")
+
+
+def _is_last_meal_deletion(args):
+    return len(args) > 0 and args[0] == "ultima"
 
 
 def commandHandler(name, handler):
