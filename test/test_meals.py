@@ -28,7 +28,8 @@ class MealTest(TestCase):
         )
 
     @patch(
-        "src.meals.pop", side_effect=[json.dumps({"name": "test", "meal": "test meal"})]
+        "src.meals.lpop",
+        side_effect=[json.dumps({"name": "test", "meal": "test meal"})],
     )
     @patch("src.meals.llen", side_effect=[3])
     def test_get_next_meal(self, llenfn, popfn, *args):
@@ -37,7 +38,7 @@ class MealTest(TestCase):
         self.assertTrue(llenfn.called)
         self.assertEqual(("test", "test meal", 3), value)
 
-    @patch("src.meals.pop", side_effect=[None])
+    @patch("src.meals.lpop", side_effect=[None])
     def test_get_next_meal_no_meal(self, popfn):
         with self.assertRaises(NoMealConfigured):
             get_next_meal()
@@ -55,7 +56,7 @@ class MealTest(TestCase):
 
         push_call.assert_called_once_with(HISTORY_KEY, "test")
 
-    @patch("src.meals.pop", side_effect=["skip"])
+    @patch("src.meals.lpop", side_effect=["skip"])
     def test_get_skip(self, pop_call):
         result = get_skip()
 

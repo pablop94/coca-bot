@@ -4,7 +4,14 @@ from telegram.ext.filters import Filters
 from src.decorators import chat_id_required
 from src.logger import logger
 from src.exceptions import NoMealConfigured
-from src.meals import add_meal, history, add_skip, get_next_meals, get_next_meal
+from src.meals import (
+    add_meal,
+    history,
+    add_skip,
+    get_next_meals,
+    get_next_meal,
+    get_last_meal,
+)
 
 
 @chat_id_required
@@ -71,7 +78,12 @@ def next_meals_handler(update, context):
 @chat_id_required
 def delete_meal_handler(update, context):
     try:
-        name, meal, remaining = get_next_meal()
+        if len(context.args) > 0 and context.args[0] == "ultima":
+            func = get_last_meal
+        else:
+            func = get_next_meal
+
+        name, meal, *_ = func()
         logger.info("Borrando comida.")
         update.message.reply_text(
             f"Borré la comida `{meal}` a cargo de *{name}*\\.",

@@ -140,7 +140,7 @@ class CommandsTest(TestCase):
         "src.handlers.commands.get_next_meal",
         side_effect=[("test name", "test meal", 4)],
     )
-    def test_delete_meal_handler(self, get_next_meal_call, *args):
+    def test_delete_first_meal_handler(self, get_next_meal_call, *args):
         context = get_mock_context()
         update = get_mock_update()
         delete_meal_handler(update, context)
@@ -148,6 +148,21 @@ class CommandsTest(TestCase):
         self.assertTrue(get_next_meal_call.called)
         update.message.reply_text.assert_called_once_with(
             "Borré la comida `test meal` a cargo de *test name*\\.",
+        )
+
+    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @patch(
+        "src.handlers.commands.get_last_meal",
+        side_effect=[("name2", "meal2")],
+    )
+    def test_delete_last_meal_handler(self, get_last_meal_call, *args):
+        context = get_mock_context(["ultima"])
+        update = get_mock_update()
+        delete_meal_handler(update, context)
+
+        self.assertTrue(get_last_meal_call.called)
+        update.message.reply_text.assert_called_once_with(
+            "Borré la comida `meal2` a cargo de *name2*\\.",
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})

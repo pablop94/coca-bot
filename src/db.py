@@ -8,8 +8,12 @@ def push(key, item):
     DB.rpush(key, item)
 
 
-def pop(key):
+def lpop(key):
     return DB.lpop(key)
+
+
+def rpop(key):
+    return DB.rpop(key)
 
 
 def llen(key):

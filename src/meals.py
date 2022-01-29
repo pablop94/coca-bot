@@ -1,5 +1,5 @@
 import json
-from src.db import push, pop, llen, get
+from src.db import push, lpop, llen, get, rpop
 from src.exceptions import NoMealConfigured
 
 MEALS_KEY = "meals"
@@ -12,12 +12,21 @@ def add_meal(user, meal):
 
 
 def get_next_meal():
-    item = pop(MEALS_KEY)
+    item = lpop(MEALS_KEY)
     if item is None:
         raise NoMealConfigured()
 
     meal = json.loads(item)
     return meal["name"], meal["meal"], _remaining_meals()
+
+
+def get_last_meal():
+    item = rpop(MEALS_KEY)
+    if item is None:
+        raise NoMealConfigured()
+
+    meal = json.loads(item)
+    return meal["name"], meal["meal"]
 
 
 def history():
@@ -33,7 +42,7 @@ def _remaining_meals():
 
 
 def get_skip():
-    return pop(SKIP_KEY)
+    return lpop(SKIP_KEY)
 
 
 def add_skip():
