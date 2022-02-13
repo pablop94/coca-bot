@@ -2,7 +2,7 @@ import datetime
 import os
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "coca_sarli.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "coca_sarli.settings.development")
 django.setup()
 
 from meals.handlers import (  # noqa: E402

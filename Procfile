@@ -1,1 +1,1 @@
-clock: python -m src.coca
+clock: cd src/ && python -m coca
