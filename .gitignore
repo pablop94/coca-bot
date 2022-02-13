@@ -3,3 +3,4 @@
 .coverage
 htmlcov
 TODO.md
+*.sqlite3

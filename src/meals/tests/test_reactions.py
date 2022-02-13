@@ -1,14 +1,14 @@
 import random
-from unittest import TestCase
+from django.test import TestCase
 from unittest.mock import patch
-from src.handlers import (
+from meals.handlers import (
     rica_handler,
     pegar_handler,
     chocolate_handler,
     intentar_handler,
 )
 
-from test.base import get_mock_context, get_mock_update
+from meals.tests.base import get_mock_context, get_mock_update
 
 
 class AudioHandlers(TestCase):

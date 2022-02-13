@@ -1,6 +1,8 @@
 import os
 import random
-from src.logger import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_handler_name(name):
