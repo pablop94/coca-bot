@@ -1,9 +1,6 @@
+from django.db.models import Count
 from meals.exceptions import NoMealConfigured
 from meals.models import Meal, Participant, Skip
-
-MEALS_KEY = "meals"
-HISTORY_KEY = "history"
-SKIP_KEY = "skip"
 
 
 def add_meal(user, meal):
@@ -32,8 +29,9 @@ def delete_meal(id):
 
 
 def history():
-    pass
-    # return get(HISTORY_KEY)
+    return Participant.objects.filter(meal__done=True).annotate(
+        total_meals=Count("meal__pk")
+    )
 
 
 def _remaining_meals():

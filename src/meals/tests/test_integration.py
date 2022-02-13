@@ -1,6 +1,6 @@
 from django.test import TestCase
 from meals.models import Meal, Participant, Skip
-from meals.views import add_meal, get_next_meal, add_skip, get_skip
+from meals.views import add_meal, get_next_meal, add_skip, get_skip, history
 
 
 class MealTest(TestCase):
@@ -64,3 +64,23 @@ class SkipTest(TestCase):
 
         get_skip()
         self.assertEquals(Skip.objects.count(), 0)
+
+
+class HistoryTest(TestCase):
+    def test_history_is_calculated_with_done_meals(self):
+        participant1 = Participant.objects.create(name="participant1")
+        participant2 = Participant.objects.create(name="participant2")
+
+        Meal.objects.create(meal_owner=participant2, description="test", done=True)
+        Meal.objects.create(meal_owner=participant2, description="test")
+        Meal.objects.create(meal_owner=participant1, description="test", done=True)
+        Meal.objects.create(meal_owner=participant1, description="test")
+        Meal.objects.create(meal_owner=participant1, description="test", done=True)
+
+        result = history()
+
+        self.assertEquals(2, len(result))
+        self.assertEquals(2, result.first().total_meals)
+        self.assertEquals("participant1", result.first().name)
+        self.assertEquals(1, result.last().total_meals)
+        self.assertEquals("participant2", result.last().name)

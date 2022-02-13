@@ -36,18 +36,12 @@ def add_meal_handler(update, context):
 
 @chat_id_required
 def history_handler(update, context):
-    names = history()
-    aggregation = dict()
-    for bname in names:
-        name = bname if not type(bname) is bytes else bname.decode("utf-8")
-        if name not in aggregation:
-            aggregation[name] = 0
-        aggregation[name] += 1
+    participants = history()
 
-    if len(names) > 0:
+    if len(participants) > 0:
         body = "El historial es\n"
-        for name in aggregation.keys():
-            body += f"\n{name}: {aggregation[name]}"
+        for participant in participants:
+            body += f"\n{participant.name}: {participant.total_meals}"
 
         logger.info("Enviando historial de comidas.")
 
