@@ -1,9 +1,14 @@
 import re
+import logging
+from os import path
+from pathlib import Path
+from django.conf import settings
 from telegram.ext import MessageHandler
 from telegram.ext.filters import Filters
 
-from src.logger import logger
-from src.decorators import chat_id_required, random_run
+from meals.decorators import chat_id_required, random_run
+
+logger = logging.getLogger(__name__)
 
 
 @random_run
@@ -32,7 +37,10 @@ def intentar_handler(update, context):
 
 def _send_audio(update, audio_name, title):
     logger.info(f"Enviando audio {audio_name}")
-    with open(f"media/{audio_name}", "rb") as audio:
+
+    with open(
+        path.join(Path(settings.BASE_DIR).parent, "media", audio_name), "rb"
+    ) as audio:
         update.message.reply_audio(audio=audio, title=title)
 
 

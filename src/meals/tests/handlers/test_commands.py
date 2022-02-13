@@ -1,19 +1,20 @@
-from unittest import TestCase
+from django.test import TestCase
 from unittest.mock import patch
 
-from src.handlers import (
+from meals.models import Meal, Participant
+from meals.handlers import (
     add_meal_handler,
     history_handler,
     skip_handler,
     next_meals_handler,
     delete_meal_handler,
 )
-from test.base import get_mock_context, get_mock_update, no_meal_configured
+from meals.tests.base import get_mock_context, get_mock_update, no_meal_configured
 
 
 class CommandsTest(TestCase):
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.commands.add_meal")
+    @patch("meals.handlers.commands.add_meal")
     def test_add_meal_handler(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -24,7 +25,7 @@ class CommandsTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
+    @patch("meals.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_add_meal_handler_no_args(self, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -35,7 +36,7 @@ class CommandsTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})
-    @patch("src.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
+    @patch("meals.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_add_meal_handler_unknown_chat(self, *args):
         context = get_mock_context([1, 2])
         update = get_mock_update()
@@ -46,7 +47,7 @@ class CommandsTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.commands.history", side_effect=[["test1", "test2", "test1"]])
+    @patch("meals.handlers.commands.history", side_effect=[["test1", "test2", "test1"]])
     def test_history_handler(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -57,7 +58,7 @@ class CommandsTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})
-    @patch("src.handlers.commands.history", side_effect=[["test1", "test2", "test1"]])
+    @patch("meals.handlers.commands.history", side_effect=[["test1", "test2", "test1"]])
     def test_history_handler_unknown_chat(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -68,7 +69,7 @@ class CommandsTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.commands.add_skip")
+    @patch("meals.handlers.commands.add_skip")
     def test_skip_handler(self, skip_call, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -91,14 +92,15 @@ class CommandsTest(TestCase):
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
     @patch(
-        "src.handlers.commands.get_next_meals",
+        "meals.handlers.commands.get_next_meals",
         side_effect=[
             [
                 (
                     "test name",
                     "test meal",
+                    "1",
                 ),
-                ("test name2", "test meal2"),
+                ("test name2", "test meal2", "2"),
             ]
         ],
     )
@@ -110,13 +112,13 @@ class CommandsTest(TestCase):
         self.assertTrue(get_next_meals_call.called)
         update.message.reply_text.assert_called_once_with(
             """Las próximas comidas son:
-\\- `test meal` a cargo de *test name*\\.
-\\- `test meal2` a cargo de *test name2*\\.
+\\- `test meal` a cargo de *test name* \\(id: 1\\)\\.
+\\- `test meal2` a cargo de *test name2* \\(id: 2\\)\\.
 """,
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("src.handlers.commands.get_next_meals", side_effect=[[]])
+    @patch("meals.handlers.commands.get_next_meals", side_effect=[[]])
     def test_next_meals_handler_no_meals(self, get_next_meals_call, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -137,47 +139,35 @@ class CommandsTest(TestCase):
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
     @patch(
-        "src.handlers.commands.get_next_meal",
-        side_effect=[("test name", "test meal", 4)],
+        "meals.handlers.commands.delete_meal",
+        side_effect=[("test name", "test meal")],
     )
-    def test_delete_first_meal_handler(self, get_next_meal_call, *args):
-        context = get_mock_context()
+    def test_delete_first_meal_handler(self, delete_meal_call, *args):
+        Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test"), description="test"
+        )
+
+        context = get_mock_context(["1"])
         update = get_mock_update()
         delete_meal_handler(update, context)
 
-        self.assertTrue(get_next_meal_call.called)
+        self.assertTrue(delete_meal_call.called)
         update.message.reply_text.assert_called_once_with(
             "Borré la comida `test meal` a cargo de *test name*\\.",
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
     @patch(
-        "src.handlers.commands.get_last_meal",
-        side_effect=[("name2", "meal2")],
-    )
-    def test_delete_last_meal_handler(self, get_last_meal_call, *args):
-        context = get_mock_context(["ultima"])
-        update = get_mock_update()
-        delete_meal_handler(update, context)
-
-        self.assertTrue(get_last_meal_call.called)
-        update.message.reply_text.assert_called_once_with(
-            "Borré la comida `meal2` a cargo de *name2*\\.",
-        )
-
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch(
-        "src.handlers.commands.get_next_meal",
+        "meals.handlers.commands.get_next_meal",
         side_effect=no_meal_configured,
     )
     def test_delete_meal_handler_no_meals(self, get_next_meal_call, *args):
-        context = get_mock_context()
+        context = get_mock_context(["1"])
         update = get_mock_update()
         delete_meal_handler(update, context)
 
-        self.assertTrue(get_next_meal_call.called)
         update.message.reply_text.assert_called_once_with(
-            "Nada que borrar, no hay comidas\\.",
+            "Nada que borrar, no hay comida con id 1\\.",
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})

@@ -1,16 +1,20 @@
 import datetime
 import os
+import django
 
-from src.handlers import (
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "coca_sarli.settings")
+django.setup()
+
+from meals.handlers import (  # noqa: E402
     send_reminder,
     COMMANDS,
     REACTIONS,
     error_handler,
     reply_to_coca_handler,
 )
-from telegram import ParseMode
-from telegram.ext import Updater, MessageHandler, Defaults
-from telegram.ext.filters import Filters
+from telegram import ParseMode  # noqa: E402
+from telegram.ext import Updater, MessageHandler, Defaults  # noqa: E402
+from telegram.ext.filters import Filters  # noqa: E402
 
 
 def add_handlers(dispatcher):
@@ -34,7 +38,9 @@ def start_bot():
     hour = int(os.environ.get("REMINDER_HOUR_UTC"))
     days = tuple(int(e) for e in os.environ.get("REMINDER_DAYS").split(","))
     updater.job_queue.run_daily(
-        send_reminder, time=datetime.time(hour=hour, minute=57), days=days
+        send_reminder,
+        time=datetime.time(hour=hour, minute=datetime.datetime.now().minute + 1),
+        days=days,
     )
 
     add_handlers(updater.dispatcher)
