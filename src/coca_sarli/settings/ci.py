@@ -6,7 +6,7 @@ DATABASES = {
         "NAME": "dbtest",
         "USER": "postgres",
         "PASSWORD": "docker",
-        "HOST": "postgres",
+        "HOST": "localhost",
         "PORT": "5432",
     }
 }
