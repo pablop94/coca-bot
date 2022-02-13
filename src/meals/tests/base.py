@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from src.exceptions import NoMealConfigured
+from meals.exceptions import NoMealConfigured
 
 
 class MockBot:

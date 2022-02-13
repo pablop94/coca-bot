@@ -1,22 +1,21 @@
-from unittest import TestCase
+from django.test import TestCase
 from unittest.mock import patch, call, MagicMock
 
 from telegram import ParseMode
-from src.handlers import (
+from meals.handlers import (
     send_reminder,
     reply_to_coca_handler,
 )
-from test.base import get_mock_context, no_meal_configured, get_mock_update
+from meals.tests.base import get_mock_context, no_meal_configured, get_mock_update
 
 
 class HandlerTest(TestCase):
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.handlers.get_skip", side_effect=[None])
+    @patch("meals.handlers.handlers.get_skip", side_effect=[None])
     @patch(
-        "src.handlers.handlers.get_next_meal",
+        "meals.handlers.handlers.get_next_meal",
         side_effect=[("test name", "test meal", 4)],
     )
-    @patch("src.handlers.handlers.add_history")
     def test_send_reminder(self, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -28,25 +27,11 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.handlers.get_skip", side_effect=[None])
+    @patch("meals.handlers.handlers.get_skip", side_effect=[None])
     @patch(
-        "src.handlers.handlers.get_next_meal",
-        side_effect=[("test name", "test meal", 4)],
-    )
-    @patch("src.handlers.handlers.add_history")
-    def test_send_reminder_add_history(self, addhistoryfn, *args):
-        context = get_mock_context()
-        send_reminder(context)
-
-        addhistoryfn.assert_called_once_with("test name")
-
-    @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.handlers.get_skip", side_effect=[None])
-    @patch(
-        "src.handlers.handlers.get_next_meal",
+        "meals.handlers.handlers.get_next_meal",
         side_effect=[("test name", "test meal", 0)],
     )
-    @patch("src.handlers.handlers.add_history")
     def test_send_reminder_no_more_meals(self, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -68,8 +53,8 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.handlers.get_skip", side_effect=[None])
-    @patch("src.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
+    @patch("meals.handlers.handlers.get_skip", side_effect=[None])
+    @patch("meals.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_send_reminder_no_meal(self, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -80,40 +65,35 @@ class HandlerTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.handlers.get_skip", side_effect=["skip"])
+    @patch("meals.handlers.handlers.get_skip", side_effect=["skip"])
     @patch(
-        "src.handlers.handlers.get_next_meal",
+        "meals.handlers.handlers.get_next_meal",
         side_effect=[("test name", "test meal", 0)],
     )
-    @patch("src.handlers.handlers.add_history")
-    def test_send_reminder_skip_active(self, history_call, get_next_meal_call, *args):
+    def test_send_reminder_skip_active(self, get_next_meal_call, *args):
         context = get_mock_context()
         send_reminder(context)
 
-        self.assertFalse(history_call.called)
         self.assertFalse(get_next_meal_call.called)
 
         self.assertEqual(0, context.bot.send_message.call_count)
 
     @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch("src.handlers.handlers.get_skip", side_effect=["skip", None])
+    @patch("meals.handlers.handlers.get_skip", side_effect=["skip", None])
     @patch(
-        "src.handlers.handlers.get_next_meal",
+        "meals.handlers.handlers.get_next_meal",
         side_effect=[("test name", "test meal", 0)],
     )
-    @patch("src.handlers.handlers.add_history")
-    def test_send_reminders_skip_active(self, history_call, get_next_meal_call, *args):
+    def test_send_reminders_skip_active(self, get_next_meal_call, *args):
         context = get_mock_context()
         send_reminder(context)
 
-        self.assertFalse(history_call.called)
         self.assertFalse(get_next_meal_call.called)
 
         self.assertEqual(0, context.bot.send_message.call_count)
 
         send_reminder(context)
 
-        self.assertTrue(history_call.called)
         self.assertTrue(get_next_meal_call.called)
 
         self.assertEqual(2, context.bot.send_message.call_count)

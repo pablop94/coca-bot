@@ -2,13 +2,14 @@ import html
 import json
 import os
 import traceback
-
-from src.decorators import random_run
-from src.exceptions import NoMealConfigured
-from src.logger import logger
-from src.meals import get_next_meal, add_history, get_skip
+import logging
+from meals.decorators import random_run
+from meals.exceptions import NoMealConfigured
+from meals.views import get_next_meal, get_skip
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
+
+logger = logging.getLogger(__name__)
 
 
 def send_reminder(context):
@@ -19,13 +20,13 @@ def send_reminder_from_bot(bot):
     if not get_skip():
         try:
             name, meal, remaining = get_next_meal()
-            add_history(name)
             logger.info("Enviando recordatorio de comida.")
             bot.send_message(
                 os.environ.get("CHAT_ID"),
                 f"Hola `{name}` te toca comprar los ingredientes para hacer `{meal}`\\.",
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
+            logger.info(f"remaining {remaining}")
             if remaining == 0:
                 bot.send_message(
                     os.environ.get("CHAT_ID"),
