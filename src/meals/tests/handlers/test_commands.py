@@ -157,11 +157,7 @@ class CommandsTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch(
-        "meals.handlers.commands.get_next_meal",
-        side_effect=no_meal_configured,
-    )
-    def test_delete_meal_handler_no_meals(self, get_next_meal_call, *args):
+    def test_delete_meal_handler_no_meals(self, *args):
         context = get_mock_context(["1"])
         update = get_mock_update()
         delete_meal_handler(update, context)
