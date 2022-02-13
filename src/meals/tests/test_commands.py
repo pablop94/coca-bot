@@ -63,7 +63,7 @@ class CommandsTest(TestCase):
         history_handler(update, context)
 
         update.message.reply_text.assert_called_once_with(
-            "El historial es\n\ntest1: 2\ntest2: 1"
+            "El historial es: \n\n\\- *test1* hizo `2` comidas\\.\n\\- *test2* hizo `1` comida\\."
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})

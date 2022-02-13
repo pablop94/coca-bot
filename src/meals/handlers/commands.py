@@ -39,9 +39,9 @@ def history_handler(update, context):
     participants = history()
 
     if len(participants) > 0:
-        body = "El historial es\n"
+        body = "El historial es: \n"
         for participant in participants:
-            body += f"\n{participant.name}: {participant.total_meals}"
+            body += f"\n\\- *{participant.name}* hizo `{participant.total_meals}` comida{'s' if participant.total_meals > 1 else ''}\\."
 
         logger.info("Enviando historial de comidas.")
 

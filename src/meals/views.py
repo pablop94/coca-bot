@@ -10,7 +10,7 @@ def add_meal(user, meal):
 
 
 def get_next_meal():
-    meal = Meal.objects.first()
+    meal = Meal.objects.filter(done=False).first()
     if meal is None:
         raise NoMealConfigured()
 

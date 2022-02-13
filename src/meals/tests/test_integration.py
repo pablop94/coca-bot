@@ -1,4 +1,5 @@
 from django.test import TestCase
+from meals.exceptions import NoMealConfigured
 from meals.models import Meal, Participant, Skip
 from meals.views import add_meal, get_next_meal, add_skip, get_skip, history
 
@@ -19,6 +20,32 @@ class MealTest(TestCase):
         self.assertEquals(Participant.objects.count(), 1)
         self.assertEquals(Participant.objects.first().name, "existing")
         self.assertEquals(Meal.objects.first().description, "meal")
+
+    def test_get_next_meal_returns_first_undone_meal(self):
+        Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test"),
+            description="test",
+            done=True,
+        )
+        Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test2"), description="test2"
+        )
+
+        name, meal, count = get_next_meal()
+
+        self.assertEquals("test2", name)
+        self.assertEquals("test2", meal)
+        self.assertEquals(0, count)
+
+    def test_get_next_meal_raises_no_meal_configured_if_there_is_no_undone_meal(self):
+        Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test"),
+            description="test",
+            done=True,
+        )
+
+        with self.assertRaises(NoMealConfigured):
+            name, meal, count = get_next_meal()
 
     def test_get_next_meal_marks_meal_as_done(self):
         Meal.objects.create(
