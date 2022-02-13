@@ -12,6 +12,15 @@ from meals.handlers import (
 from meals.tests.base import get_mock_context, get_mock_update, no_meal_configured
 
 
+def get_history_mock():
+    class MockParticipant:
+        def __init__(self, name, total_meals):
+            self.name = name
+            self.total_meals = total_meals
+
+    return [MockParticipant("test1", 2), MockParticipant("test2", 1)]
+
+
 class CommandsTest(TestCase):
     @patch.dict("os.environ", {"CHAT_ID": "1"})
     @patch("meals.handlers.commands.add_meal")
@@ -47,18 +56,18 @@ class CommandsTest(TestCase):
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "1"})
-    @patch("meals.handlers.commands.history", side_effect=[["test1", "test2", "test1"]])
+    @patch("meals.handlers.commands.history", side_effect=[get_history_mock()])
     def test_history_handler(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
         history_handler(update, context)
 
         update.message.reply_text.assert_called_once_with(
-            "El historial es\n\ntest1: 2\ntest2: 1"
+            "El historial es: \n\n\\- *test1* hizo `2` comidas\\.\n\\- *test2* hizo `1` comida\\."
         )
 
     @patch.dict("os.environ", {"CHAT_ID": "2"})
-    @patch("meals.handlers.commands.history", side_effect=[["test1", "test2", "test1"]])
+    @patch("meals.handlers.commands.history", side_effect=[[]])
     def test_history_handler_unknown_chat(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
