@@ -39,4 +39,4 @@ jobs:
       env:
         DJANGO_SETTINGS_MODULE: coca_sarli.settings.ci
       run: |
-        python manage.py test
+        cd src/ && python manage.py test
