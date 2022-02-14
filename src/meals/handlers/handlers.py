@@ -5,6 +5,8 @@ import traceback
 import logging
 from meals.decorators import random_run
 from meals.exceptions import NoMealConfigured
+from meals.graphs import send_history_chart
+from meals.handlers.commands import get_history
 from meals.views import get_next_meal, get_skip
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
@@ -41,6 +43,19 @@ def send_reminder_from_bot(bot):
             )
     else:
         logger.info("Salteando recordatorio debido a un skip.")
+
+
+def send_history_resume(context):
+    body, graph = get_history("Hola, les dejo el resumen de quienes compraron:")
+
+    context.bot.send_message(os.environ.get("CHAT_ID"), body)
+
+    send_history_chart(
+        graph,
+        lambda image, **kwargs: context.bot.send_photo(
+            os.environ.get("CHAT_ID"), image, **kwargs
+        ),
+    )
 
 
 def error_handler(update, context):

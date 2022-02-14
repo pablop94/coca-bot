@@ -4,6 +4,7 @@ from telegram.ext import CommandHandler
 from telegram.ext.filters import Filters
 
 from meals.decorators import chat_id_required
+from meals.graphs import send_history_chart
 from meals.models import Meal
 from meals.views import (
     add_meal,
@@ -36,16 +37,28 @@ def add_meal_handler(update, context):
 
 @chat_id_required
 def history_handler(update, context):
+    logger.info("Enviando historial de comidas.")
+    body, graph = get_history("El historial es:")
+
+    update.message.reply_text(body)
+
+    send_history_chart(graph, update.message.reply_photo)
+
+
+def get_history(header):
     participants = history()
-
+    graph = {"names": [], "values": [], "total": 0}
+    body = ""
     if len(participants) > 0:
-        body = "El historial es: \n"
+        body = f"{header} \n"
         for participant in participants:
-            body += f"\n\\- *{participant.name}* hizo `{participant.total_meals}` comida{'s' if participant.total_meals > 1 else ''}\\."
+            graph["names"].append(participant.name)
+            graph["values"].append(participant.total_meals)
+            graph["total"] += participant.total_meals
 
-        logger.info("Enviando historial de comidas.")
+            body += f"\n\\- *{participant.name}* compró para `{participant.total_meals}` comida{'s' if participant.total_meals > 1 else ''}\\."
 
-        update.message.reply_text(body)
+    return body, graph
 
 
 @chat_id_required
