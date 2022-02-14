@@ -19,6 +19,7 @@ La coca es un bot que nace para recordarnos a un grupo de amigues quienes tienen
 - `TELEGRAM_TOKEN` el token del bot de Telegram.
 - `REMINDER_HOUR_UTC` la hora a la que se envía el recordatorio en UTC.
 - `REMINDER_DAYS` los días en que se envía el recordatorio, 0 es lunes, 6 es domingo separado por coma. Por ejemplo 2,3 lo envía miercoles y jueves.
+- `HISTORY_RESUME_DAY` el día del mes donde se envía el histórico de compras. Por defecto es 31 y si el mes no tiene 31, se envía el último día.
 
 ## Ejecución
 ### Bot
