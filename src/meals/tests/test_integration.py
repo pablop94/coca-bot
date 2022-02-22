@@ -1,7 +1,14 @@
 from django.test import TestCase
 from meals.exceptions import NoMealConfigured
 from meals.models import Meal, Participant, Skip
-from meals.views import add_meal, get_next_meal, add_skip, get_skip, history
+from meals.views import (
+    add_meal,
+    get_next_meal,
+    add_skip,
+    get_skip,
+    history,
+    get_next_meals,
+)
 
 
 class MealTest(TestCase):
@@ -111,3 +118,37 @@ class HistoryTest(TestCase):
         self.assertEquals("participant1", result.first().name)
         self.assertEquals(1, result.last().total_meals)
         self.assertEquals("participant2", result.last().name)
+
+
+class NextMealsTest(TestCase):
+    def test_get_next_meals_returns_undone_meals_in_order(self):
+        Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test"),
+            description="test",
+            done=True,
+        )
+        meal2 = Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test2"),
+            description="description test2",
+        )
+        meal3 = Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test4"),
+            description="description test4",
+        )
+        meal4 = Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test3"),
+            description="description test3",
+        )
+
+        meals = get_next_meals()
+
+        self.assertEquals(3, len(meals))
+        self.assertEquals("test2", meals[0][0])
+        self.assertEquals("description test2", meals[0][1])
+        self.assertEquals(meal2.id, meals[0][2])
+        self.assertEquals("test4", meals[1][0])
+        self.assertEquals("description test4", meals[1][1])
+        self.assertEquals(meal3.id, meals[1][2])
+        self.assertEquals("test3", meals[2][0])
+        self.assertEquals("description test3", meals[2][1])
+        self.assertEquals(meal4.id, meals[2][2])

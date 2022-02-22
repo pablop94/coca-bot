@@ -7,6 +7,9 @@ class Meal(models.Model):
     done = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ("id",)
+
 
 class Participant(models.Model):
     name = models.CharField(max_length=50)
