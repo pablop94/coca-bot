@@ -1,12 +1,7 @@
 import datetime
 import os
-import django
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "coca_sarli.settings.development")
-django.setup()
-
-from django.conf import settings  # noqa: E402
-from meals.handlers import (  # noqa: E402
+from django.conf import settings
+from meals.handlers import (
     send_reminder,
     send_history_resume,
     COMMANDS,
@@ -14,9 +9,18 @@ from meals.handlers import (  # noqa: E402
     error_handler,
     reply_to_coca_handler,
 )
-from telegram import ParseMode  # noqa: E402
-from telegram.ext import Updater, MessageHandler, Defaults  # noqa: E402
-from telegram.ext.filters import Filters  # noqa: E402
+from telegram import ParseMode
+from telegram.ext import Updater, MessageHandler, Defaults
+from telegram.ext.filters import Filters
+
+from django.core.management.base import BaseCommand
+
+
+class Command(BaseCommand):
+    help = "Closes the specified poll for voting"
+
+    def handle(self, *args, **options):
+        start_bot()
 
 
 def add_handlers(dispatcher):
@@ -57,7 +61,3 @@ def start_bot():
 
     updater.start_polling()
     updater.idle()
-
-
-if __name__ == "__main__":
-    start_bot()

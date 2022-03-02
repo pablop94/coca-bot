@@ -24,7 +24,7 @@ La coca es un bot que nace para recordarnos a un grupo de amigues quienes tienen
 ## Ejecución
 ### Bot
 ```
-python -m src.coca
+python manage.py run_coca
 ```
 
 ### Tests
