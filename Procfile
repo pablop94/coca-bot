@@ -1,2 +1,2 @@
 release: cd src/ && python manage.py migrate
-clock: cd src/ && python -m coca
+clock: cd src/ && python manage.py run_coca
