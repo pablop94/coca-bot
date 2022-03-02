@@ -84,6 +84,13 @@ class MealTest(TestCase):
 
         self.assertEquals(1, count)
 
+    def test_meal_is_added_existing_participant_with_uppercase(self):
+        Participant.objects.create(name="existing")
+        add_meal("Existing", "meal")
+
+        self.assertEquals(Participant.objects.count(), 1)
+        self.assertEquals(Meal.objects.first().meal_owner.name, "existing")
+
 
 class SkipTest(TestCase):
     def test_skip_is_added(self):
