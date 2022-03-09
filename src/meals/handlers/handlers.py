@@ -25,7 +25,7 @@ def send_reminder_from_bot(bot):
             logger.info("Enviando recordatorio de comida.")
             bot.send_message(
                 os.environ.get("CHAT_ID"),
-                f"Hola `{name}` te toca comprar los ingredientes para hacer `{meal}`\\.",
+                f"Hola *{name}* te toca comprar los ingredientes para hacer `{meal}`\\.",
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
             logger.info(f"remaining {remaining}")

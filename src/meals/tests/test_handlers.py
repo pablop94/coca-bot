@@ -22,7 +22,7 @@ class HandlerTest(TestCase):
 
         context.bot.send_message.assert_called_once_with(
             "",
-            "Hola `test name` te toca comprar los ingredientes para hacer `test meal`\\.",
+            "Hola *test name* te toca comprar los ingredientes para hacer `test meal`\\.",
             parse_mode=ParseMode().MARKDOWN_V2,
         )
 
@@ -41,7 +41,7 @@ class HandlerTest(TestCase):
             [
                 call(
                     "",
-                    "Hola `test name` te toca comprar los ingredientes para hacer `test meal`\\.",
+                    "Hola *test name* te toca comprar los ingredientes para hacer `test meal`\\.",
                     parse_mode=ParseMode().MARKDOWN_V2,
                 ),
                 call(
