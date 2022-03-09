@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -124,3 +125,5 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+RANDOM_RUN_PROBABILITY = int(os.environ.get("RANDOM_RUN_PROBABILITY", 50))

@@ -2,6 +2,9 @@ import os
 import random
 import logging
 
+from django.conf import settings
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +32,7 @@ def chat_id_required(fn):
 
 def random_run(fn):
     def inner(*args, **kwargs):
-        if random.randint(1, 100) < 25:
+        if random.randint(1, 100) <= settings.RANDOM_RUN_PROBABILITY:
             fn(*args, **kwargs)
 
     return inner
