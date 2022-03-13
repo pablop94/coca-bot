@@ -23,6 +23,8 @@ La coca es un bot que nace para recordarnos a un grupo de amigues quienes tienen
 - `RANDOM_RUN_PROBABILITY` la probabilidad de que la coca envíe respuestas de audio. Por defecto es 50%.
 
 ## Ejecución
+Estando en la carpeta `src`:
+
 ### Bot
 ```
 python manage.py run_coca
@@ -30,5 +32,5 @@ python manage.py run_coca
 
 ### Tests
 ```
-python -m unittest
+python manage.py test
 ```
