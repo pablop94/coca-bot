@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db.models import Count
 from meals.exceptions import NoMealConfigured
 from meals.models import Meal, Participant, Skip
@@ -18,6 +19,7 @@ def get_next_meal():
         raise NoMealConfigured()
 
     meal.done = True
+    meal.done_at = timezone.now()
     meal.save()
 
     return meal.meal_owner.name, meal.description, _remaining_meals()

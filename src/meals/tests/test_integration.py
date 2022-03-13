@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.test import TestCase
 from meals.exceptions import NoMealConfigured
 from meals.models import Meal, Participant, Skip
@@ -62,6 +63,7 @@ class MealTest(TestCase):
         get_next_meal()
 
         self.assertTrue(Meal.objects.first().done)
+        self.assertEquals(timezone.now().day, Meal.objects.first().done_at.day)
 
     def test_get_next_meal_returns_remaining_count(self):
         Meal.objects.create(
