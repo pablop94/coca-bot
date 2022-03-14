@@ -19,7 +19,7 @@ def get_next_meal():
         raise NoMealConfigured()
 
     meal.done = True
-    meal.done_at = timezone.now()
+    meal.done_at = timezone.now().date()
     meal.save()
 
     return meal.meal_owner.name, meal.description, _remaining_meals()
