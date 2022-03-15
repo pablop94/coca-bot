@@ -9,6 +9,7 @@ from meals.views import (
     get_skip,
     history,
     get_next_meals,
+    resolve_meal,
 )
 
 
@@ -92,6 +93,17 @@ class MealTest(TestCase):
 
         self.assertEquals(Participant.objects.count(), 1)
         self.assertEquals(Meal.objects.first().meal_owner.name, "existing")
+
+    def test_resolve_meal_mark_meal_as_done(self):
+        meal = Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test"),
+            description="test",
+        )
+
+        resolve_meal(meal.id)
+
+        self.assertTrue(Meal.objects.get(id=meal.id).done)
+        self.assertEquals(timezone.now().date(), Meal.objects.get(id=meal.id).done_at)
 
 
 class SkipTest(TestCase):

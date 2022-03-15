@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Meal(models.Model):
@@ -10,6 +11,10 @@ class Meal(models.Model):
 
     class Meta:
         ordering = ("id",)
+
+    def mark_as_done(self):
+        self.done = True
+        self.done_at = timezone.now()
 
 
 class Participant(models.Model):
