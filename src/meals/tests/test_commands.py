@@ -8,6 +8,7 @@ from meals.handlers import (
     skip_handler,
     next_meals_handler,
     delete_meal_handler,
+    resolve_meal_handler,
 )
 from meals.tests.base import get_mock_context, get_mock_update, no_meal_configured
 
@@ -180,6 +181,45 @@ class CommandsTest(TestCase):
         context = get_mock_context()
         update = get_mock_update()
         delete_meal_handler(update, context)
+
+        update.message.reply_photo.assert_called_once_with(
+            "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
+        )
+
+    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @patch(
+        "meals.handlers.commands.resolve_meal",
+        side_effect=[("test name", "test meal")],
+    )
+    def test_resolve_meal_handler(self, resolve_meal_call, *args):
+        Meal.objects.create(
+            meal_owner=Participant.objects.create(name="test"), description="test"
+        )
+
+        context = get_mock_context(["1"])
+        update = get_mock_update()
+        resolve_meal_handler(update, context)
+
+        self.assertTrue(resolve_meal_call.called)
+        update.message.reply_text.assert_called_once_with(
+            "Resolví la comida `test meal` a cargo de *test name*\\.",
+        )
+
+    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    def test_resolve_meal_handler_no_meals(self, *args):
+        context = get_mock_context(["1"])
+        update = get_mock_update()
+        resolve_meal_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "Nada que resolver, no hay comida con id 1\\.",
+        )
+
+    @patch.dict("os.environ", {"CHAT_ID": "2"})
+    def test_resolve_meal_handler_unknown_chat(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        resolve_meal_handler(update, context)
 
         update.message.reply_photo.assert_called_once_with(
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"

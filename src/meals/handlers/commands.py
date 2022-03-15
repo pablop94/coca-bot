@@ -12,6 +12,7 @@ from meals.views import (
     add_skip,
     get_next_meals,
     delete_meal,
+    resolve_meal,
 )
 
 
@@ -88,7 +89,7 @@ def next_meals_handler(update, context):
 @chat_id_required
 def delete_meal_handler(update, context):
     try:
-        if _is_valid_deletion(context.args):
+        if _is_valid_as_id(context.args):
             name, meal = delete_meal(context.args[0])
             logger.info("Borrando comida.")
             update.message.reply_text(
@@ -106,7 +107,28 @@ def delete_meal_handler(update, context):
         )
 
 
-def _is_valid_deletion(args):
+@chat_id_required
+def resolve_meal_handler(update, context):
+    try:
+        if _is_valid_as_id(context.args):
+            name, meal = resolve_meal(context.args[0])
+            logger.info("Resolviendo comida.")
+            update.message.reply_text(
+                f"Resolví la comida `{meal}` a cargo de *{name}*\\.",
+            )
+        else:
+            logger.info("Recibido borrar sin parametro o con parametro invalido.")
+            update.message.reply_text(
+                "Para borrar necesito un id\\. Podes ver el id usando \\/proximas\\."
+            )
+    except Meal.DoesNotExist:
+        logger.info("Se quiso resolver una comida inexistente.")
+        update.message.reply_text(
+            f"Nada que resolver, no hay comida con id {context.args[0]}\\."
+        )
+
+
+def _is_valid_as_id(args):
     try:
         if len(args) > 0:
             int(args[0])
@@ -131,6 +153,7 @@ COMMANDS_ARGS = [
     ("saltear", skip_handler),
     ("proximas", next_meals_handler),
     ("borrar", delete_meal_handler),
+    ("resolver", resolve_meal_handler),
 ]
 
 COMMANDS = [commandHandler(*cargs) for cargs in COMMANDS_ARGS]
