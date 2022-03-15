@@ -7,6 +7,7 @@ from meals.decorators import random_run
 from meals.exceptions import NoMealConfigured
 from meals.graphs import send_history_chart
 from meals.handlers.commands import get_history
+from meals.utils import format_meal, format_name
 from meals.views import get_next_meal, get_skip
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
@@ -25,7 +26,7 @@ def send_reminder_from_bot(bot):
             logger.info("Enviando recordatorio de comida.")
             bot.send_message(
                 os.environ.get("CHAT_ID"),
-                f"Hola *{name}* te toca comprar los ingredientes para hacer `{meal}`\\.",
+                f"Hola {format_name(name)} te toca comprar los ingredientes para hacer {format_meal(meal)}\\.",
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
             logger.info(f"remaining {remaining}")

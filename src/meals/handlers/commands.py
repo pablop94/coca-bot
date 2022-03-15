@@ -6,6 +6,7 @@ from telegram.ext.filters import Filters
 from meals.decorators import chat_id_required
 from meals.graphs import send_history_chart
 from meals.models import Meal
+from meals.utils import format_meal, format_name
 from meals.views import (
     add_meal,
     history,
@@ -32,7 +33,7 @@ def add_meal_handler(update, context):
         name = context.args[0]
         add_meal(name, meal)
         update.message.reply_text(
-            f"Ahí le agregué la comida `{meal}` a *{name}*\\.",
+            f"Ahí le agregué la comida {format_meal(meal)} a {format_name(name)}\\.",
         )
 
 
@@ -57,7 +58,7 @@ def get_history(header):
             graph["values"].append(participant.total_meals)
             graph["total"] += participant.total_meals
 
-            body += f"\n\\- *{participant.name}* compró para `{participant.total_meals}` comida{'s' if participant.total_meals > 1 else ''}\\."
+            body += f"\n\\- {format_name(participant.name)} compró para `{participant.total_meals}` comida{'s' if participant.total_meals > 1 else ''}\\."
 
     return body, graph
 
@@ -78,7 +79,7 @@ def next_meals_handler(update, context):
         logger.info("Enviando proximas comidas.")
         message = "Las próximas comidas son:\n"
         for name, meal, pk in meals:
-            message += f"\\- `{meal}` a cargo de *{name}* \\(id: {pk}\\)\\.\n"
+            message += f"\\- {format_meal(meal)} a cargo de {format_name(name)} \\(id: {pk}\\)\\.\n"
 
         update.message.reply_text(message)
     else:
@@ -93,7 +94,7 @@ def delete_meal_handler(update, context):
             name, meal = delete_meal(context.args[0])
             logger.info("Borrando comida.")
             update.message.reply_text(
-                f"Borré la comida `{meal}` a cargo de *{name}*\\.",
+                f"Borré la comida {format_meal(meal)} a cargo de {format_name(name)}\\.",
             )
         else:
             logger.info("Recibido borrar sin parametro o con parametro invalido.")
@@ -114,7 +115,7 @@ def resolve_meal_handler(update, context):
             name, meal = resolve_meal(context.args[0])
             logger.info("Resolviendo comida.")
             update.message.reply_text(
-                f"Resolví la comida `{meal}` a cargo de *{name}*\\.",
+                f"Resolví la comida {format_meal(meal)} a cargo de {format_name(name)}\\.",
             )
         else:
             logger.info("Recibido borrar sin parametro o con parametro invalido.")
