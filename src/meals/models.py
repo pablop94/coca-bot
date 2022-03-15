@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from meals.utils import format_meal, format_name
 
 
 class Meal(models.Model):
@@ -15,6 +16,9 @@ class Meal(models.Model):
     def mark_as_done(self):
         self.done = True
         self.done_at = timezone.now()
+
+    def __str__(self):
+        return f"{format_meal(self.description)} a cargo de {format_name(self.meal_owner.name)}"
 
 
 class Participant(models.Model):
