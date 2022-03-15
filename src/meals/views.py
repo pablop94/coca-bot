@@ -4,7 +4,7 @@ from meals.models import Meal, Participant, Skip
 
 
 def add_meal(user, meal):
-    Meal.objects.create(
+    return Meal.objects.create(
         meal_owner=Participant.objects.get_or_create(
             name__iexact=user, defaults={"name": user}
         )[0],
@@ -23,12 +23,12 @@ def get_next_meal():
     return meal.meal_owner.name, meal.description, _remaining_meals()
 
 
-def delete_meal(id):
-    meal = Meal.objects.get(pk=id)
+def delete_meal(meal_id):
+    meal = Meal.objects.get(pk=meal_id)
 
     meal.delete()
 
-    return meal.meal_owner.name, meal.description
+    return meal
 
 
 def history():
@@ -55,9 +55,7 @@ def add_skip():
 
 
 def get_next_meals():
-    return Meal.objects.filter(done=False).values_list(
-        "meal_owner__name", "description", "pk"
-    )
+    return Meal.objects.filter(done=False)
 
 
 def resolve_meal(meal_id):
@@ -65,4 +63,4 @@ def resolve_meal(meal_id):
     meal.mark_as_done()
     meal.save()
 
-    return meal.meal_owner.name, meal.description
+    return meal

@@ -6,7 +6,7 @@ from telegram.ext.filters import Filters
 from meals.decorators import chat_id_required
 from meals.graphs import send_history_chart
 from meals.models import Meal
-from meals.utils import format_meal, format_name
+from meals.utils import format_name
 from meals.views import (
     add_meal,
     history,
@@ -31,9 +31,9 @@ def add_meal_handler(update, context):
         logger.info("Agregando recordatorio de comida.")
         meal = " ".join(context.args[1:])
         name = context.args[0]
-        add_meal(name, meal)
+        meal_obj = add_meal(name, meal)
         update.message.reply_text(
-            f"Ahí le agregué la comida {format_meal(meal)} a {format_name(name)}\\.",
+            f"Ahí agregué la comida {meal_obj}\\.",
         )
 
 
@@ -78,8 +78,8 @@ def next_meals_handler(update, context):
     if meals:
         logger.info("Enviando proximas comidas.")
         message = "Las próximas comidas son:\n"
-        for name, meal, pk in meals:
-            message += f"\\- {format_meal(meal)} a cargo de {format_name(name)} \\(id: {pk}\\)\\.\n"
+        for meal in meals:
+            message += f"\\- {meal} \\(id: {meal.pk}\\)\\.\n"
 
         update.message.reply_text(message)
     else:
@@ -91,10 +91,10 @@ def next_meals_handler(update, context):
 def delete_meal_handler(update, context):
     try:
         if _is_valid_as_id(context.args):
-            name, meal = delete_meal(context.args[0])
+            meal = delete_meal(context.args[0])
             logger.info("Borrando comida.")
             update.message.reply_text(
-                f"Borré la comida {format_meal(meal)} a cargo de {format_name(name)}\\.",
+                f"Borré la comida {meal}\\.",
             )
         else:
             logger.info("Recibido borrar sin parametro o con parametro invalido.")
@@ -112,15 +112,15 @@ def delete_meal_handler(update, context):
 def resolve_meal_handler(update, context):
     try:
         if _is_valid_as_id(context.args):
-            name, meal = resolve_meal(context.args[0])
+            meal = resolve_meal(context.args[0])
             logger.info("Resolviendo comida.")
             update.message.reply_text(
-                f"Resolví la comida {format_meal(meal)} a cargo de {format_name(name)}\\.",
+                f"Resolví la comida {meal}\\.",
             )
         else:
-            logger.info("Recibido borrar sin parametro o con parametro invalido.")
+            logger.info("Recibido resolver sin parametro o con parametro invalido.")
             update.message.reply_text(
-                "Para borrar necesito un id\\. Podes ver el id usando \\/proximas\\."
+                "Para resolver necesito un id\\. Podes ver el id usando \\/proximas\\."
             )
     except Meal.DoesNotExist:
         logger.info("Se quiso resolver una comida inexistente.")
