@@ -1,8 +1,8 @@
 import html
 import json
-import os
 import traceback
 import logging
+from django.conf import settings
 from meals.decorators import random_run
 from meals.exceptions import NoMealConfigured
 from meals.graphs import send_history_chart
@@ -25,21 +25,21 @@ def send_reminder_from_bot(bot):
             name, meal, remaining = get_next_meal()
             logger.info("Enviando recordatorio de comida.")
             bot.send_message(
-                os.environ.get("CHAT_ID"),
+                settings.CHAT_ID,
                 f"Hola {format_name(name)} te toca comprar los ingredientes para hacer {format_meal(meal)}\\.",
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
             logger.info(f"remaining {remaining}")
             if remaining == 0:
                 bot.send_message(
-                    os.environ.get("CHAT_ID"),
+                    settings.CHAT_ID,
                     "Además les informo que no hay más comidas configuradas, ponganse a pensar\\.",
                     parse_mode=ParseMode.MARKDOWN_V2,
                 )
         except NoMealConfigured:
             logger.info("Comida sin configurar.")
             bot.send_message(
-                os.environ.get("CHAT_ID"),
+                settings.CHAT_ID,
                 "Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas\\.",
             )
     else:
@@ -49,12 +49,12 @@ def send_reminder_from_bot(bot):
 def send_history_resume(context):
     body, graph = get_history("Hola, les dejo el resumen de quienes compraron:")
 
-    context.bot.send_message(os.environ.get("CHAT_ID"), body)
+    context.bot.send_message(settings.CHAT_ID, body)
 
     send_history_chart(
         graph,
         lambda image, **kwargs: context.bot.send_photo(
-            os.environ.get("CHAT_ID"), image, **kwargs
+            settings.CHAT_ID, image, **kwargs
         ),
     )
 
@@ -78,13 +78,13 @@ def error_handler(update, context):
 
     # Finally, send the message
     context.bot.send_message(
-        os.environ.get("DEVELOPER_CHAT_ID"), text=message, parse_mode=ParseMode.HTML
+        settings.DEVELOPER_CHAT_ID, text=message, parse_mode=ParseMode.HTML
     )
 
 
 @random_run
 def reply_to_coca_handler(update: Update, context: CallbackContext):
     if update.message.reply_to_message.from_user.id == int(
-        os.environ.get("TELEGRAM_TOKEN").split(":")[0]
+        settings.TELEGRAM_TOKEN.split(":")[0]
     ):
         update.message.reply_text("Soy una entidad virtual, no me contestes\\.")
