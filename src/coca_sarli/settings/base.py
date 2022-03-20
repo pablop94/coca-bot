@@ -1,10 +1,20 @@
+import environ
 import os
-from pathlib import Path
+from environ import Path
 
+env = environ.Env(
+    RANDOM_RUN_PROBABILITY=(int, 50),
+    REMINDER_DAYS=lambda value: tuple(int(e) for e in value.split(",")),
+    TELEGRAM_TOKEN=str,
+    REMINDER_HOUR_UTC=(int, 10),
+    HISTORY_RESUME_DAY=(int, 31),
+    CHAT_ID=int,
+    DEVELOPER_CHAT_ID=int,
+)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__) - 3
 
-
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
@@ -115,4 +125,10 @@ LOGGING = {
     },
 }
 
-RANDOM_RUN_PROBABILITY = int(os.environ.get("RANDOM_RUN_PROBABILITY", 50))
+CHAT_ID = env("CHAT_ID")
+DEVELOPER_CHAT_ID = env("DEVELOPER_CHAT_ID")
+HISTORY_RESUME_DAY = env("HISTORY_RESUME_DAY")
+RANDOM_RUN_PROBABILITY = env("RANDOM_RUN_PROBABILITY")
+REMINDER_DAYS = env("REMINDER_DAYS")
+REMINDER_HOUR_UTC = env("REMINDER_HOUR_UTC")
+TELEGRAM_TOKEN = env("TELEGRAM_TOKEN")

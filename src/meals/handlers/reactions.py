@@ -37,7 +37,6 @@ def intentar_handler(update, context):
 
 def _send_audio(update, audio_name, title):
     logger.info(f"Enviando audio {audio_name}")
-
     with open(
         path.join(Path(settings.BASE_DIR).parent, "media", audio_name), "rb"
     ) as audio:

@@ -1,5 +1,5 @@
 import random
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from unittest.mock import patch
 from meals.handlers import (
     rica_handler,
@@ -15,7 +15,7 @@ class AudioHandlers(TestCase):
     def setUp(self, *args):
         random.seed(1)
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     def test_rica_handler(self, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -23,7 +23,7 @@ class AudioHandlers(TestCase):
 
         update.message.reply_audio.assert_called_once()
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch("meals.decorators.random.randint", side_effect=[51])
     def test_rica_handler_random_51(self, *args):
         context = get_mock_context()
@@ -32,7 +32,7 @@ class AudioHandlers(TestCase):
 
         update.message.reply_audio.assert_not_called()
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     def test_pegar_handler(self, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -40,7 +40,7 @@ class AudioHandlers(TestCase):
 
         update.message.reply_audio.assert_called_once()
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch("meals.decorators.random.randint", side_effect=[51])
     def test_pegar_handler_random_51(self, *args):
         context = get_mock_context()
@@ -49,7 +49,7 @@ class AudioHandlers(TestCase):
 
         update.message.reply_audio.assert_not_called()
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     def test_chocolate_handler(self, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -57,7 +57,7 @@ class AudioHandlers(TestCase):
 
         update.message.reply_audio.assert_called_once()
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch("meals.decorators.random.randint", side_effect=[51])
     def test_chocolate_handler_random_51(self, *args):
         context = get_mock_context()
@@ -66,7 +66,7 @@ class AudioHandlers(TestCase):
 
         update.message.reply_audio.assert_not_called()
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     def test_intentar_handler(self, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -74,7 +74,7 @@ class AudioHandlers(TestCase):
 
         update.message.reply_audio.assert_called_once()
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch("meals.decorators.random.randint", side_effect=[51])
     def test_intentar_handler_random_51(self, *args):
         context = get_mock_context()

@@ -1,5 +1,4 @@
 import datetime
-import os
 from django.conf import settings
 from meals.handlers import (
     send_reminder,
@@ -17,7 +16,7 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "Closes the specified poll for voting"
+    help = "Start coca in polling mode"
 
     def handle(self, *args, **options):
         start_bot()
@@ -39,10 +38,10 @@ def add_handlers(dispatcher):
 
 def start_bot():
     defaults = Defaults(quote=False, parse_mode=ParseMode.MARKDOWN_V2)
-    updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"), defaults=defaults)
+    updater = Updater(token=settings.TELEGRAM_TOKEN, defaults=defaults)
 
-    days = tuple(int(e) for e in os.environ.get("REMINDER_DAYS").split(","))
-    hour = int(os.environ.get("REMINDER_HOUR_UTC"))
+    days = settings.REMINDER_DAYS
+    hour = settings.REMINDER_HOUR_UTC
     minute = 0 if not settings.DEBUG else datetime.datetime.now().minute + 1
     updater.job_queue.run_daily(
         send_reminder,
@@ -50,7 +49,7 @@ def start_bot():
         days=days,
     )
 
-    history_day = int(os.environ.get("HISTORY_RESUME_DAY", 31))
+    history_day = settings.HISTORY_RESUME_DAY
     updater.job_queue.run_monthly(
         send_history_resume,
         when=datetime.time(hour=hour, minute=minute),

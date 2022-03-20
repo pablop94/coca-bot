@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from unittest.mock import patch, call, MagicMock
 
 from telegram import ParseMode
@@ -10,12 +10,12 @@ from meals.tests.base import get_mock_context, no_meal_configured, get_mock_upda
 
 
 class HandlerTest(TestCase):
-    @patch.dict("os.environ", {"CHAT_ID": ""})
     @patch("meals.handlers.handlers.get_skip", side_effect=[None])
     @patch(
         "meals.handlers.handlers.get_next_meal",
         side_effect=[("test name", "test meal", 4)],
     )
+    @override_settings(CHAT_ID="")
     def test_send_reminder(self, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -26,12 +26,12 @@ class HandlerTest(TestCase):
             parse_mode=ParseMode().MARKDOWN_V2,
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": ""})
     @patch("meals.handlers.handlers.get_skip", side_effect=[None])
     @patch(
         "meals.handlers.handlers.get_next_meal",
         side_effect=[("test name", "test meal", 0)],
     )
+    @override_settings(CHAT_ID="")
     def test_send_reminder_no_more_meals(self, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -52,7 +52,7 @@ class HandlerTest(TestCase):
             ]
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": ""})
+    @override_settings(CHAT_ID="")
     @patch("meals.handlers.handlers.get_skip", side_effect=[None])
     @patch("meals.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_send_reminder_no_meal(self, *args):
@@ -64,7 +64,7 @@ class HandlerTest(TestCase):
             "Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas\\.",
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": ""})
+    @override_settings(CHAT_ID="")
     @patch("meals.handlers.handlers.get_skip", side_effect=["skip"])
     @patch(
         "meals.handlers.handlers.get_next_meal",
@@ -78,7 +78,7 @@ class HandlerTest(TestCase):
 
         self.assertEqual(0, context.bot.send_message.call_count)
 
-    @patch.dict("os.environ", {"CHAT_ID": ""})
+    @override_settings(CHAT_ID="")
     @patch("meals.handlers.handlers.get_skip", side_effect=["skip", None])
     @patch(
         "meals.handlers.handlers.get_next_meal",
@@ -98,8 +98,7 @@ class HandlerTest(TestCase):
 
         self.assertEqual(2, context.bot.send_message.call_count)
 
-    @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch.dict("os.environ", {"TELEGRAM_TOKEN": "25:test"})
+    @override_settings(CHAT_ID="", TELEGRAM_TOKEN="25:test")
     def test_reply_to_coca_handler(self, *args):
         """El id de usuario del bot es la primera parte del token, antes de los :"""
         import random
@@ -118,8 +117,7 @@ class HandlerTest(TestCase):
             "Soy una entidad virtual, no me contestes\\."
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": ""})
-    @patch.dict("os.environ", {"TELEGRAM_TOKEN": "25:test"})
+    @override_settings(CHAT_ID="", TELEGRAM_TOKEN="25:test")
     def test_reply_to_coca_handler_other_chat(self, *args):
         """El id de usuario del bot es la primera parte del token, antes de los :"""
         import random
@@ -136,7 +134,7 @@ class HandlerTest(TestCase):
 
         update.message.reply_text.assert_not_called()
 
-    @patch.dict("os.environ", {"CHAT_ID": ""})
+    @override_settings(CHAT_ID="")
     def test_reply_to_coca_handler_random_high(self, *args):
         import random
 

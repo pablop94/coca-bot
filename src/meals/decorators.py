@@ -1,4 +1,3 @@
-import os
 import random
 import logging
 
@@ -17,7 +16,7 @@ def chat_id_required(fn):
     fnname = get_handler_name(fn.__name__)
 
     def inner(update, context):
-        if update.message.chat.id == int(os.environ.get("CHAT_ID")):
+        if update.message.chat.id == settings.CHAT_ID:
             fn(update, context)
         else:
             logger.warning(

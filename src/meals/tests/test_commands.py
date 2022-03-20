@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from unittest.mock import patch, MagicMock
 
 from meals.models import Meal, Participant
@@ -34,7 +34,7 @@ def meal_mock(pk=1, desc="test meal", name="test name"):
 
 
 class CommandsTest(TestCase):
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch(
         "meals.handlers.commands.add_meal",
         side_effect=[meal_mock(pk=1, desc="meal", name="name")],
@@ -48,7 +48,7 @@ class CommandsTest(TestCase):
             "Ahí agregué la comida `meal` a cargo de *name*\\."
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch("meals.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_add_meal_handler_no_args(self, *args):
         context = get_mock_context()
@@ -59,7 +59,7 @@ class CommandsTest(TestCase):
             "Para que pueda agregar necesito que me pases un nombre y una comida\\."
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "2"})
+    @override_settings(CHAT_ID=2)
     @patch("meals.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_add_meal_handler_unknown_chat(self, *args):
         context = get_mock_context([1, 2])
@@ -70,7 +70,7 @@ class CommandsTest(TestCase):
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch("meals.handlers.commands.history", side_effect=[get_history_mock()])
     def test_history_handler(self, *args):
         context = get_mock_context(["name", "meal"])
@@ -81,7 +81,7 @@ class CommandsTest(TestCase):
             "El historial es: \n\n\\- *test1* compró para `2` comidas\\.\n\\- *test2* compró para `1` comida\\."
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "2"})
+    @override_settings(CHAT_ID=2)
     @patch("meals.handlers.commands.history", side_effect=[[]])
     def test_history_handler_unknown_chat(self, *args):
         context = get_mock_context(["name", "meal"])
@@ -92,7 +92,7 @@ class CommandsTest(TestCase):
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch("meals.handlers.commands.add_skip")
     def test_skip_handler(self, skip_call, *args):
         context = get_mock_context()
@@ -104,7 +104,7 @@ class CommandsTest(TestCase):
             "Perfecto, me salteo una comida\\."
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "2"})
+    @override_settings(CHAT_ID=2)
     def test_skip_handler_unknown_chat(self, *args):
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
@@ -114,7 +114,7 @@ class CommandsTest(TestCase):
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch(
         "meals.handlers.commands.get_next_meals",
         side_effect=[
@@ -134,7 +134,7 @@ class CommandsTest(TestCase):
 """,
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch("meals.handlers.commands.get_next_meals", side_effect=[[]])
     def test_next_meals_handler_no_meals(self, get_next_meals_call, *args):
         context = get_mock_context()
@@ -144,7 +144,7 @@ class CommandsTest(TestCase):
         self.assertTrue(get_next_meals_call.called)
         update.message.reply_text.assert_called_once_with("No hay próximas comidas\\.")
 
-    @patch.dict("os.environ", {"CHAT_ID": "2"})
+    @override_settings(CHAT_ID=2)
     def test_next_meals_handler_unknown_chat(self, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -154,7 +154,7 @@ class CommandsTest(TestCase):
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch(
         "meals.handlers.commands.delete_meal",
         side_effect=lambda x: meal_mock(),
@@ -173,7 +173,7 @@ class CommandsTest(TestCase):
             "Borré la comida `test meal` a cargo de *test name*\\.",
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     def test_delete_meal_handler_no_meals(self, *args):
         context = get_mock_context(["1"])
         update = get_mock_update()
@@ -183,7 +183,7 @@ class CommandsTest(TestCase):
             "Nada que borrar, no hay comida con id 1\\.",
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     def test_delete_meal_handler_invalid_id(self, *args):
         context = get_mock_context(["asd"])
         update = get_mock_update()
@@ -193,7 +193,7 @@ class CommandsTest(TestCase):
             "Para borrar necesito un id\\. Podes ver el id usando \\/proximas\\."
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "2"})
+    @override_settings(CHAT_ID=2)
     def test_delete_meal_handler_unknown_chat(self, *args):
         context = get_mock_context()
         update = get_mock_update()
@@ -203,7 +203,7 @@ class CommandsTest(TestCase):
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     @patch(
         "meals.handlers.commands.resolve_meal",
         side_effect=lambda x: meal_mock(),
@@ -222,7 +222,7 @@ class CommandsTest(TestCase):
             "Resolví la comida `test meal` a cargo de *test name*\\.",
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     def test_resolve_meal_handler_no_meals(self, *args):
         context = get_mock_context(["1"])
         update = get_mock_update()
@@ -232,7 +232,7 @@ class CommandsTest(TestCase):
             "Nada que resolver, no hay comida con id 1\\.",
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "1"})
+    @override_settings(CHAT_ID=1)
     def test_resolve_meal_handler_invalid_id(self, *args):
         context = get_mock_context(["asd"])
         update = get_mock_update()
@@ -242,7 +242,7 @@ class CommandsTest(TestCase):
             "Para resolver necesito un id\\. Podes ver el id usando \\/proximas\\."
         )
 
-    @patch.dict("os.environ", {"CHAT_ID": "2"})
+    @override_settings(CHAT_ID=2)
     def test_resolve_meal_handler_unknown_chat(self, *args):
         context = get_mock_context()
         update = get_mock_update()
