@@ -49,18 +49,18 @@ def history_handler(update, context):
 
 def get_history(header):
     participants = history()
-    graph = {"names": [], "values": [], "total": 0}
+    graph_data = {"names": [], "values": [], "total": 0}
     body = ""
     if len(participants) > 0:
         body = f"{header} \n"
         for participant in participants:
-            graph["names"].append(participant.name)
-            graph["values"].append(participant.total_meals)
-            graph["total"] += participant.total_meals
+            graph_data["names"].append(participant.name)
+            graph_data["values"].append(participant.total_meals)
+            graph_data["total"] += participant.total_meals
 
             body += f"\n\\- {format_name(participant.name)} compró para `{participant.total_meals}` comida{'s' if participant.total_meals > 1 else ''}\\."
 
-    return body, graph
+    return body, graph_data
 
 
 @chat_id_required

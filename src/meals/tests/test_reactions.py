@@ -1,5 +1,5 @@
 import random
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, override_settings
 from unittest.mock import patch
 from meals.handlers import (
     rica_handler,
@@ -11,7 +11,7 @@ from meals.handlers import (
 from meals.tests.base import get_mock_context, get_mock_update
 
 
-class AudioHandlers(TestCase):
+class AudioHandlers(SimpleTestCase):
     def setUp(self, *args):
         random.seed(1)
 

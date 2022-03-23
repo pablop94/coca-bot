@@ -32,8 +32,10 @@ def delete_meal(meal_id):
 
 
 def history():
-    return Participant.objects.filter(meal__done=True).annotate(
-        total_meals=Count("meal__pk")
+    return (
+        Participant.objects.filter(meal__done=True)
+        .annotate(total_meals=Count("meal__pk"))
+        .order_by("-total_meals")
     )
 
 
