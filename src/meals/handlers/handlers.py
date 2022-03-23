@@ -47,7 +47,7 @@ def send_reminder_from_bot(bot):
 
 
 def send_history_resume(context):
-    body, graph = get_history("Hola, les dejo el resumen de quienes compraron:")
+    body, graph = get_history("Hola, les dejo el resumen del histórico de compras:")
 
     context.bot.send_message(settings.CHAT_ID, body)
 

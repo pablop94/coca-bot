@@ -1,22 +1,22 @@
 from django.test import TestCase, override_settings
-from unittest.mock import patch, call, MagicMock
+from django.utils import timezone
+from unittest.mock import call, MagicMock
 
 from telegram import ParseMode
 from meals.handlers import (
     send_reminder,
+    send_history_resume,
     reply_to_coca_handler,
 )
-from meals.tests.base import get_mock_context, no_meal_configured, get_mock_update
+from meals.tests.factories import MealFactory, ParticipantFactory, SkipFactory
+from meals.tests.base import get_mock_context, get_mock_update
 
 
 class HandlerTest(TestCase):
-    @patch("meals.handlers.handlers.get_skip", side_effect=[None])
-    @patch(
-        "meals.handlers.handlers.get_next_meal",
-        side_effect=[("test name", "test meal", 4)],
-    )
     @override_settings(CHAT_ID="")
     def test_send_reminder(self, *args):
+        meal = MealFactory(meal_owner=ParticipantFactory(name="test name"))
+        MealFactory(meal_owner=ParticipantFactory(name="test name2"))
         context = get_mock_context()
         send_reminder(context)
 
@@ -26,13 +26,40 @@ class HandlerTest(TestCase):
             parse_mode=ParseMode().MARKDOWN_V2,
         )
 
-    @patch("meals.handlers.handlers.get_skip", side_effect=[None])
-    @patch(
-        "meals.handlers.handlers.get_next_meal",
-        side_effect=[("test name", "test meal", 0)],
-    )
+        meal.refresh_from_db()
+        self.assertTrue(meal.done)
+        self.assertEquals(timezone.now().day, meal.done_at.day)
+
+    @override_settings(CHAT_ID="")
+    def test_get_next_meal_returns_first_undone_meal(self):
+        MealFactory(
+            meal_owner=ParticipantFactory(name="test"),
+            description="test",
+            done=True,
+        )
+        MealFactory(meal_owner=ParticipantFactory(name="test2"), description="test2")
+
+        context = get_mock_context()
+        send_reminder(context)
+
+        context.bot.send_message.assert_has_calls(
+            [
+                call(
+                    "",
+                    "Hola *test2* te toca comprar los ingredientes para hacer `test2`\\.",
+                    parse_mode=ParseMode().MARKDOWN_V2,
+                ),
+                call(
+                    "",
+                    "Además les informo que no hay más comidas configuradas, ponganse a pensar\\.",
+                    parse_mode=ParseMode().MARKDOWN_V2,
+                ),
+            ]
+        )
+
     @override_settings(CHAT_ID="")
     def test_send_reminder_no_more_meals(self, *args):
+        MealFactory(meal_owner=ParticipantFactory(name="test name"))
         context = get_mock_context()
         send_reminder(context)
 
@@ -53,8 +80,6 @@ class HandlerTest(TestCase):
         )
 
     @override_settings(CHAT_ID="")
-    @patch("meals.handlers.handlers.get_skip", side_effect=[None])
-    @patch("meals.handlers.handlers.get_next_meal", side_effect=no_meal_configured)
     def test_send_reminder_no_meal(self, *args):
         context = get_mock_context()
         send_reminder(context)
@@ -65,36 +90,23 @@ class HandlerTest(TestCase):
         )
 
     @override_settings(CHAT_ID="")
-    @patch("meals.handlers.handlers.get_skip", side_effect=["skip"])
-    @patch(
-        "meals.handlers.handlers.get_next_meal",
-        side_effect=[("test name", "test meal", 0)],
-    )
-    def test_send_reminder_skip_active(self, get_next_meal_call, *args):
+    def test_send_reminder_skip_active(self, *args):
+        SkipFactory()
         context = get_mock_context()
         send_reminder(context)
-
-        self.assertFalse(get_next_meal_call.called)
 
         self.assertEqual(0, context.bot.send_message.call_count)
 
     @override_settings(CHAT_ID="")
-    @patch("meals.handlers.handlers.get_skip", side_effect=["skip", None])
-    @patch(
-        "meals.handlers.handlers.get_next_meal",
-        side_effect=[("test name", "test meal", 0)],
-    )
-    def test_send_reminders_skip_active(self, get_next_meal_call, *args):
+    def test_send_reminders_skip_active(self, *args):
+        SkipFactory()
+        MealFactory()
         context = get_mock_context()
         send_reminder(context)
-
-        self.assertFalse(get_next_meal_call.called)
 
         self.assertEqual(0, context.bot.send_message.call_count)
 
         send_reminder(context)
-
-        self.assertTrue(get_next_meal_call.called)
 
         self.assertEqual(2, context.bot.send_message.call_count)
 
@@ -144,3 +156,19 @@ class HandlerTest(TestCase):
         reply_to_coca_handler(update, context)
 
         update.message.reply_text.assert_not_called()
+
+    @override_settings(CHAT_ID="")
+    def test_send_history_resume(self, *args):
+        p2 = ParticipantFactory(name="test2")
+        p1 = ParticipantFactory(name="test")
+        MealFactory(done=True, meal_owner=p2)
+        MealFactory(done=True, meal_owner=p2)
+        MealFactory(done=True, meal_owner=p1)
+
+        context = get_mock_context()
+        send_history_resume(context)
+
+        context.bot.send_message.assert_called_once_with(
+            "",
+            "Hola, les dejo el resumen del histórico de compras: \n\n\\- *test2* compró para `2` comidas\\.\n\\- *test* compró para `1` comida\\.",
+        )

@@ -1,9 +1,4 @@
 from unittest.mock import MagicMock
-from meals.exceptions import NoMealConfigured
-
-
-class MockBot:
-    pass
 
 
 class MockChat:
@@ -31,12 +26,9 @@ def get_mock_update(args=[]):
 def get_mock_context(args=[]):
     class MockContext:
         def __init__(self):
-            self.bot = MockBot()
+            self.bot = MagicMock()
             self.args = args
             self.bot.send_message = MagicMock()
+            self.bot.send_photo = MagicMock()
 
     return MockContext()
-
-
-def no_meal_configured():
-    raise NoMealConfigured()
