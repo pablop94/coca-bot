@@ -16,16 +16,16 @@ from meals.tests.base import get_mock_context, get_mock_update
 class CommandsTest(TestCase):
     @override_settings(CHAT_ID=1)
     def test_add_meal_handler(self, *args):
+        ParticipantFactory(name="test")
+        ParticipantFactory(name="test2")
         context = get_mock_context(["name", "meal"])
         update = get_mock_update()
         add_meal_handler(update, context)
 
-        self.assertEquals(1, Meal.objects.count())
-        self.assertEquals("meal", Meal.objects.first().description)
-        self.assertEquals(1, Participant.objects.count())
-        self.assertEquals("name", Participant.objects.first().name)
+        self.assertEquals(0, Meal.objects.count())
+        self.assertEquals(2, Participant.objects.count())
         update.message.reply_text.assert_called_once_with(
-            "Ahí agregué la comida `meal` a cargo de *name*\\."
+            "*name* no es un usuario válido, los válidos son:\n\\- test\n\\- test2"
         )
 
     @override_settings(CHAT_ID=1)

@@ -4,10 +4,9 @@ from meals.models import Meal, Participant, Skip
 
 
 def add_meal(user, meal):
+    participant = Participant.objects.get(name__iexact=user)
     return Meal.objects.create(
-        meal_owner=Participant.objects.get_or_create(
-            name__iexact=user, defaults={"name": user}
-        )[0],
+        meal_owner=participant,
         description=meal,
     )
 

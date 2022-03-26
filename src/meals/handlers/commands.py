@@ -5,7 +5,7 @@ from telegram.ext.filters import Filters
 
 from meals.decorators import chat_id_required
 from meals.graphs import send_history_chart
-from meals.models import Meal
+from meals.models import Meal, Participant
 from meals.formatters import format_name
 from meals.views import (
     add_meal,
@@ -31,10 +31,19 @@ def add_meal_handler(update, context):
         logger.info("Agregando recordatorio de comida.")
         meal = " ".join(context.args[1:])
         name = context.args[0]
-        meal_obj = add_meal(name, meal)
-        update.message.reply_text(
-            f"Ahí agregué la comida {meal_obj}\\.",
-        )
+        try:
+            meal_obj = add_meal(name, meal)
+            update.message.reply_text(
+                f"Ahí agregué la comida {meal_obj}\\.",
+            )
+        except Participant.DoesNotExist:
+            valid_names = Participant.objects.all().values_list("name", flat=True)
+            valid_names_joined = ""
+            for valid_name in valid_names:
+                valid_names_joined += f"\n\\- {valid_name}"
+            update.message.reply_text(
+                f"{format_name(name)} no es un usuario válido, los válidos son:{valid_names_joined}"
+            )
 
 
 @chat_id_required
