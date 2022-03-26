@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from meals.utils import format_meal, format_name
+from meals.formatters import format_meal, format_name
 
 
 class Meal(models.Model):
