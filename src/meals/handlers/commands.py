@@ -6,7 +6,7 @@ from telegram.ext.filters import Filters
 from meals.decorators import chat_id_required
 from meals.graphs import send_history_chart
 from meals.models import Meal
-from meals.utils import format_name
+from meals.formatters import format_name
 from meals.views import (
     add_meal,
     history,

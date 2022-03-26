@@ -7,7 +7,7 @@ from meals.decorators import random_run
 from meals.exceptions import NoMealConfigured
 from meals.graphs import send_history_chart
 from meals.handlers.commands import get_history
-from meals.utils import format_meal, format_name
+from meals.formatters import format_meal, format_name
 from meals.views import get_next_meal, get_skip
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
