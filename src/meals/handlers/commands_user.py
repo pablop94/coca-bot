@@ -1,8 +1,5 @@
 import logging
 
-from telegram.ext import CommandHandler
-from telegram.ext.filters import Filters
-
 from meals.decorators import chat_id_required
 from meals.exceptions import IncompleteMeal
 from meals.graphs import send_history_chart
@@ -176,14 +173,6 @@ def _is_valid_as_id(args):
             return False
     except ValueError:
         return False
-
-
-def commandHandler(name, handler):
-    return CommandHandler(
-        name,
-        handler,
-        Filters.command & ~Filters.update.edited_message,
-    )
 
 
 COMMANDS_ARGS = [
