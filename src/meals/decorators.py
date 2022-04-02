@@ -29,6 +29,23 @@ def chat_id_required(fn):
     return inner
 
 
+def developer_chat_id_required(fn):
+    fnname = get_handler_name(fn.__name__)
+
+    def inner(update, context):
+        if update.message.chat.id == settings.CHAT_ID:
+            fn(update, context)
+        else:
+            logger.warning(
+                f"Recibido <{fnname}> desde un chat no configurado: {update.message.chat.id}."
+            )
+            update.message.reply_photo(
+                "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
+            )
+
+    return inner
+
+
 def random_run(fn):
     def inner(*args, **kwargs):
         if random.randint(1, 100) <= settings.RANDOM_RUN_PROBABILITY:
