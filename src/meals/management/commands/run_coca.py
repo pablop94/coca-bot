@@ -1,5 +1,4 @@
 import datetime
-import logging
 from django.conf import settings
 from meals.handlers import (
     send_reminder,
@@ -14,9 +13,6 @@ from telegram.ext import Updater, MessageHandler, Defaults
 from telegram.ext.filters import Filters
 
 from django.core.management.base import BaseCommand
-
-
-logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -40,31 +36,6 @@ def add_handlers(dispatcher):
     dispatcher.add_error_handler(error_handler)
 
 
-def cleanup_jobs(bot, jobs):
-    logger.info("Starting jobs cleanup")
-
-    current_jobs = set()
-    repeated_jobs = set()
-
-    for job in jobs:
-        if job.name in current_jobs:
-            repeated_jobs.add(job.name)
-            job.schedule_removal()
-        current_jobs.add(job.name)
-
-    message = f"- Current jobs: {', '.join(current_jobs)}.\n\n" + (
-        f"- Repeated jobs: {', '.join(repeated_jobs)}"
-        if repeated_jobs
-        else "There is no repeated jobs."
-    )
-    bot.send_message(settings.DEVELOPER_CHAT_ID, text=message, parse_mode=None)
-    bot.send_message(
-        settings.DEVELOPER_CHAT_ID,
-        text="Repeated jobs are scheduled for removal.",
-        parse_mode=None,
-    )
-
-
 def start_bot():
     defaults = Defaults(quote=False, parse_mode=ParseMode.MARKDOWN_V2)
     updater = Updater(token=settings.TELEGRAM_TOKEN, defaults=defaults)
@@ -86,8 +57,6 @@ def start_bot():
     )
 
     add_handlers(updater.dispatcher)
-
-    cleanup_jobs(updater.bot, updater.job_queue.jobs())
 
     updater.start_polling()
     updater.idle()

@@ -6,6 +6,7 @@ from telegram.ext.filters import Filters
 from meals.decorators import chat_id_required
 from meals.exceptions import IncompleteMeal
 from meals.graphs import send_history_chart
+from meals.handlers.commands_dev import get_jobs_handler, cleanup_jobs_handler
 from meals.models import Meal, Participant
 from meals.formatters import format_name
 from meals.views import (
@@ -193,6 +194,8 @@ COMMANDS_ARGS = [
     ("proximas", next_meals_handler),
     ("borrar", delete_meal_handler),
     ("resolver", resolve_meal_handler),
+    ("jobs", get_jobs_handler),
+    ("cleanup", cleanup_jobs_handler),
 ]
 
 COMMANDS = [commandHandler(*cargs) for cargs in COMMANDS_ARGS]
