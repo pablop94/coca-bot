@@ -1,8 +1,9 @@
 import logging
-
+from datetime import timedelta
 from meals.decorators import chat_id_required
 from meals.exceptions import IncompleteMeal
 from meals.graphs import send_history_chart
+from meals.handlers.utils import get_next_meal_date
 from meals.models import Meal, Participant
 from meals.formatters import format_name
 from meals.views import (
@@ -107,14 +108,18 @@ def next_meals_handler(update, context):
     meals = get_next_meals()
 
     if meals:
+        next_date = get_next_meal_date()
+        weeks_offset = 0
         logger.info("Enviando proximas comidas.")
-        message = "Las próximas comidas son:"
+        message = "*Las próximas comidas son:*"
         for meal in meals:
-            message += f"\n\\-\\-\\-\\- \\(id: {meal.pk}\\)"
+            message += f"\n\n{next_date.strftime('%A %-d de %B')} _\\(id: {meal.pk}\\)_"
 
             for meal_item in meal.mealitem_set.all():
                 message += f"\n\t\\- {meal_item}"
 
+            weeks_offset += 1
+            next_date = next_date + timedelta(weeks=weeks_offset)
         update.message.reply_text(message)
     else:
         logger.info("Enviando ausencia de próximas comidas.")
