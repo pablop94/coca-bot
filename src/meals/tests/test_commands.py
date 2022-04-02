@@ -115,6 +115,23 @@ class CommandsTest(TestCase):
             "El historial es: \n\n\\- *test1* compró para `2` comidas\\.\n\\- *test2* compró para `1` comida\\."
         )
 
+    @override_settings(CHAT_ID=1)
+    def test_history_handler_meal_with_multiple_items(self, *args):
+        p1 = ParticipantFactory(name="test1")
+        p2 = ParticipantFactory(name="test2")
+
+        meal = MealFactory(done=True)
+        MealItemFactory(meal=meal, owner=p1)
+        MealItemFactory(meal=meal, owner=p2)
+        MealItemFactory(meal=MealFactory(done=True), owner=p1)
+        context = get_mock_context()
+        update = get_mock_update()
+        history_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "El historial es: \n\n\\- *test1* compró para `2` comidas\\.\n\\- *test2* compró para `1` comida\\."
+        )
+
     @override_settings(CHAT_ID=2)
     def test_history_handler_unknown_chat(self, *args):
         context = get_mock_context(["name", "meal"])
