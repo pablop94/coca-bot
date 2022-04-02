@@ -1,3 +1,5 @@
+from datetime import datetime
+from unittest.mock import patch
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from meals.tests.factories import MealFactory, MealItemFactory, ParticipantFactory
@@ -164,23 +166,40 @@ class CommandsTest(TestCase):
         )
 
     @override_settings(CHAT_ID=1)
+    @patch(
+        "meals.handlers.utils.timezone.now",
+        side_effect=lambda: datetime.strptime(
+            "2022-04-02 15:27:05.004573 +0300", "%Y-%m-%d %H:%M:%S.%f %z"
+        ),
+    )
     def test_next_meals_handler(self, *args):
         meal_item1 = MealItemFactory(
             description="test meal", owner=ParticipantFactory(name="test name")
         )
-        meal_item2 = MealItemFactory(
-            description="test meal2", owner=ParticipantFactory(name="test name2")
+        meal = MealFactory()
+        MealItemFactory(
+            description="test meal2",
+            meal=meal,
+            owner=ParticipantFactory(name="test name2"),
+        )
+        MealItemFactory(
+            description="test meal3",
+            meal=meal,
+            owner=ParticipantFactory(name="test name3"),
         )
         context = get_mock_context()
         update = get_mock_update()
         next_meals_handler(update, context)
 
         update.message.reply_text.assert_called_once_with(
-            f"""Las próximas comidas son:
-\\-\\-\\-\\- \\(id: {meal_item1.meal.id}\\)
+            f"""*Las próximas comidas son:*
+
+martes 5 de abril _\\(id: {meal_item1.meal.id}\\)_
 \t\\- `test meal` a cargo de *test name*
-\\-\\-\\-\\- \\(id: {meal_item2.meal.id}\\)
-\t\\- `test meal2` a cargo de *test name2*""",
+
+martes 12 de abril _\\(id: {meal.id}\\)_
+\t\\- `test meal2` a cargo de *test name2*
+\t\\- `test meal3` a cargo de *test name3*""",
         )
 
     @override_settings(CHAT_ID=1)
