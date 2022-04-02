@@ -46,3 +46,9 @@ def cleanup_jobs(bot, jobs):
             text="Los jobs repetidos se marcaron para borrar.",
             parse_mode=None,
         )
+
+
+COMMANDS_ARGS = [
+    ("jobs", get_jobs_handler),
+    ("cleanup", cleanup_jobs_handler),
+]

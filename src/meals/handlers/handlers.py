@@ -6,7 +6,7 @@ from django.conf import settings
 from meals.decorators import random_run
 from meals.exceptions import NoMealConfigured
 from meals.graphs import send_history_chart
-from meals.handlers.commands import get_history
+from meals.handlers.commands_user import get_history
 from meals.formatters import format_meal, format_name
 from meals.views import get_next_meal, get_skip
 from telegram import ParseMode, Update
