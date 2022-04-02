@@ -22,11 +22,14 @@ def send_reminder(context):
 def send_reminder_from_bot(bot):
     if not get_skip():
         try:
-            name, meal, remaining = get_next_meal()
+            meal, remaining = get_next_meal()
             logger.info("Enviando recordatorio de comida.")
+            message = "Hola!"
+            for meal_item in meal.mealitem_set.all():
+                message += f"\n\\- {format_name(meal_item.owner.name)} te toca comprar los ingredientes para hacer {format_meal(meal_item.description)}\\."
             bot.send_message(
                 settings.CHAT_ID,
-                f"Hola {format_name(name)} te toca comprar los ingredientes para hacer {format_meal(meal)}\\.",
+                message,
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
             logger.info(f"remaining {remaining}")

@@ -8,36 +8,41 @@ from meals.handlers import (
     send_history_resume,
     reply_to_coca_handler,
 )
-from meals.tests.factories import MealFactory, ParticipantFactory, SkipFactory
+from meals.tests.factories import (
+    MealFactory,
+    MealItemFactory,
+    ParticipantFactory,
+    SkipFactory,
+)
 from meals.tests.base import get_mock_context, get_mock_update
 
 
 class HandlerTest(TestCase):
     @override_settings(CHAT_ID="")
     def test_send_reminder(self, *args):
-        meal = MealFactory(meal_owner=ParticipantFactory(name="test name"))
-        MealFactory(meal_owner=ParticipantFactory(name="test name2"))
+        mealitem = MealItemFactory(owner=ParticipantFactory(name="test name"))
+        MealItemFactory()
         context = get_mock_context()
         send_reminder(context)
 
         context.bot.send_message.assert_called_once_with(
             "",
-            "Hola *test name* te toca comprar los ingredientes para hacer `test meal`\\.",
+            """Hola!\n\\- *test name* te toca comprar los ingredientes para hacer `test meal`\\.""",
             parse_mode=ParseMode().MARKDOWN_V2,
         )
 
-        meal.refresh_from_db()
-        self.assertTrue(meal.done)
-        self.assertEquals(timezone.now().day, meal.done_at.day)
+        mealitem.refresh_from_db()
+        self.assertTrue(mealitem.meal.done)
+        self.assertEquals(timezone.now().day, mealitem.meal.done_at.day)
 
     @override_settings(CHAT_ID="")
     def test_get_next_meal_returns_first_undone_meal(self):
-        MealFactory(
-            meal_owner=ParticipantFactory(name="test"),
+        MealItemFactory(
+            owner=ParticipantFactory(name="test"),
             description="test",
-            done=True,
+            meal=MealFactory(done=True),
         )
-        MealFactory(meal_owner=ParticipantFactory(name="test2"), description="test2")
+        MealItemFactory(owner=ParticipantFactory(name="test2"), description="test2")
 
         context = get_mock_context()
         send_reminder(context)
@@ -46,7 +51,7 @@ class HandlerTest(TestCase):
             [
                 call(
                     "",
-                    "Hola *test2* te toca comprar los ingredientes para hacer `test2`\\.",
+                    """Hola!\n\\- *test2* te toca comprar los ingredientes para hacer `test2`\\.""",
                     parse_mode=ParseMode().MARKDOWN_V2,
                 ),
                 call(
@@ -59,7 +64,7 @@ class HandlerTest(TestCase):
 
     @override_settings(CHAT_ID="")
     def test_send_reminder_no_more_meals(self, *args):
-        MealFactory(meal_owner=ParticipantFactory(name="test name"))
+        MealItemFactory(owner=ParticipantFactory(name="test name"))
         context = get_mock_context()
         send_reminder(context)
 
@@ -68,7 +73,7 @@ class HandlerTest(TestCase):
             [
                 call(
                     "",
-                    "Hola *test name* te toca comprar los ingredientes para hacer `test meal`\\.",
+                    "Hola!\n\\- *test name* te toca comprar los ingredientes para hacer `test meal`\\.",
                     parse_mode=ParseMode().MARKDOWN_V2,
                 ),
                 call(
@@ -100,7 +105,7 @@ class HandlerTest(TestCase):
     @override_settings(CHAT_ID="")
     def test_send_reminders_skip_active(self, *args):
         SkipFactory()
-        MealFactory()
+        MealItemFactory()
         context = get_mock_context()
         send_reminder(context)
 
@@ -161,9 +166,9 @@ class HandlerTest(TestCase):
     def test_send_history_resume(self, *args):
         p2 = ParticipantFactory(name="test2")
         p1 = ParticipantFactory(name="test")
-        MealFactory(done=True, meal_owner=p2)
-        MealFactory(done=True, meal_owner=p2)
-        MealFactory(done=True, meal_owner=p1)
+        MealItemFactory(meal=MealFactory(done=True), owner=p2)
+        MealItemFactory(meal=MealFactory(done=True), owner=p2)
+        MealItemFactory(meal=MealFactory(done=True), owner=p1)
 
         context = get_mock_context()
         send_history_resume(context)
