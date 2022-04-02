@@ -1,7 +1,7 @@
 from django.test import TestCase, override_settings
 from django.utils import timezone
-from meals.tests.factories import MealFactory, ParticipantFactory
-from meals.models import Meal, Participant, Skip
+from meals.tests.factories import MealFactory, MealItemFactory, ParticipantFactory
+from meals.models import Meal, MealItem, Participant, Skip
 from meals.handlers import (
     add_meal_handler,
     history_handler,
@@ -25,7 +25,7 @@ class CommandsTest(TestCase):
         self.assertEquals(0, Meal.objects.count())
         self.assertEquals(2, Participant.objects.count())
         update.message.reply_text.assert_called_once_with(
-            "*name* no es un usuario válido, los válidos son:\n\\- test\n\\- test2"
+            "Hay usuarios inválidos, los válidos son:\n\\- test\n\\- test2"
         )
 
     @override_settings(CHAT_ID=1)
@@ -37,7 +37,11 @@ class CommandsTest(TestCase):
 
         self.assertEquals(Participant.objects.count(), 1)
         self.assertEquals(Participant.objects.first().name, "existing")
-        self.assertEquals(Meal.objects.first().description, "meal")
+        self.assertEquals(Meal.objects.first().done, False)
+        self.assertEquals(MealItem.objects.first().description, "meal")
+        update.message.reply_text.assert_called_once_with(
+            "Ahí agregué la comida: `meal` a cargo de *existing*"
+        )
 
     @override_settings(CHAT_ID=1)
     def test_meal_is_added_existing_participant_with_uppercase(self):
@@ -48,7 +52,8 @@ class CommandsTest(TestCase):
 
         self.assertEquals(Participant.objects.count(), 1)
         self.assertEquals(Participant.objects.first().name, "existing")
-        self.assertEquals(Meal.objects.first().description, "meal")
+        self.assertEquals(Meal.objects.first().done, False)
+        self.assertEquals(Meal.objects.first().mealitem_set.first().description, "meal")
 
     @override_settings(CHAT_ID=1)
     def test_add_meal_handler_no_args(self, *args):
@@ -71,13 +76,37 @@ class CommandsTest(TestCase):
         )
 
     @override_settings(CHAT_ID=1)
+    def test_meal_is_added_existing_participants(self):
+        ParticipantFactory(name="existing")
+        ParticipantFactory(name="existing2")
+        ParticipantFactory(name="existing3")
+        context = get_mock_context(
+            ["existing", "meal,", "existing2", "other meal,", "existing3", "dessert"]
+        )
+        update = get_mock_update()
+        add_meal_handler(update, context)
+
+        self.assertEquals(MealItem.objects.count(), 3)
+        self.assertEquals(Meal.objects.count(), 1)
+        self.assertEquals(Participant.objects.count(), 3)
+        self.assertEquals(Participant.objects.all()[0].name, "existing")
+        self.assertEquals(MealItem.objects.all()[0].description, "meal")
+        self.assertEquals(Participant.objects.all()[1].name, "existing2")
+        self.assertEquals(MealItem.objects.all()[1].description, "other meal")
+        self.assertEquals(Participant.objects.all()[2].name, "existing3")
+        self.assertEquals(MealItem.objects.all()[2].description, "dessert")
+        update.message.reply_text.assert_called_once_with(
+            "Ahí agregué la comida:\n\\- `meal` a cargo de *existing*\n\\- `other meal` a cargo de *existing2*\n\\- `dessert` a cargo de *existing3*"
+        )
+
+    @override_settings(CHAT_ID=1)
     def test_history_handler(self, *args):
         p1 = ParticipantFactory(name="test1")
         p2 = ParticipantFactory(name="test2")
 
-        MealFactory(done=True, meal_owner=p1)
-        MealFactory(done=True, meal_owner=p1)
-        MealFactory(done=True, meal_owner=p2)
+        MealItemFactory(meal=MealFactory(done=True), owner=p1)
+        MealItemFactory(meal=MealFactory(done=True), owner=p1)
+        MealItemFactory(meal=MealFactory(done=True), owner=p2)
         context = get_mock_context()
         update = get_mock_update()
         history_handler(update, context)
@@ -119,11 +148,11 @@ class CommandsTest(TestCase):
 
     @override_settings(CHAT_ID=1)
     def test_next_meals_handler(self, *args):
-        meal1 = MealFactory(
-            description="test meal", meal_owner=ParticipantFactory(name="test name")
+        meal_item1 = MealItemFactory(
+            description="test meal", owner=ParticipantFactory(name="test name")
         )
-        meal2 = MealFactory(
-            description="test meal2", meal_owner=ParticipantFactory(name="test name2")
+        meal_item2 = MealItemFactory(
+            description="test meal2", owner=ParticipantFactory(name="test name2")
         )
         context = get_mock_context()
         update = get_mock_update()
@@ -131,9 +160,10 @@ class CommandsTest(TestCase):
 
         update.message.reply_text.assert_called_once_with(
             f"""Las próximas comidas son:
-\\- `test meal` a cargo de *test name* \\(id: {meal1.id}\\)\\.
-\\- `test meal2` a cargo de *test name2* \\(id: {meal2.id}\\)\\.
-""",
+\\-\\-\\-\\- \\(id: {meal_item1.meal.id}\\)
+\t\\- `test meal` a cargo de *test name*
+\\-\\-\\-\\- \\(id: {meal_item2.meal.id}\\)
+\t\\- `test meal2` a cargo de *test name2*""",
         )
 
     @override_settings(CHAT_ID=1)
@@ -156,17 +186,17 @@ class CommandsTest(TestCase):
 
     @override_settings(CHAT_ID=1)
     def test_delete_first_meal_handler(self, *args):
-        meal = MealFactory(
-            meal_owner=ParticipantFactory(name="test name"), description="test meal"
+        meal_item = MealItemFactory(
+            owner=ParticipantFactory(name="test name"), description="test meal"
         )
 
-        context = get_mock_context([meal.id])
+        context = get_mock_context([meal_item.meal.id])
         update = get_mock_update()
         delete_meal_handler(update, context)
 
         self.assertEquals(0, Meal.objects.count())
         update.message.reply_text.assert_called_once_with(
-            "Borré la comida `test meal` a cargo de *test name*\\.",
+            f"Borré la comida {meal_item.meal.id}\\.",
         )
 
     @override_settings(CHAT_ID=1)
@@ -201,19 +231,19 @@ class CommandsTest(TestCase):
 
     @override_settings(CHAT_ID=1)
     def test_resolve_meal_handler(self, *args):
-        meal = MealFactory(
-            meal_owner=ParticipantFactory(name="test name"), description="test meal"
+        meal_item = MealItemFactory(
+            owner=ParticipantFactory(name="test name"), description="test meal"
         )
 
-        context = get_mock_context([meal.id])
+        context = get_mock_context([meal_item.meal.id])
         update = get_mock_update()
         resolve_meal_handler(update, context)
 
-        meal.refresh_from_db()
-        self.assertTrue(meal.done)
-        self.assertEquals(timezone.now().date(), meal.done_at)
+        meal_item.refresh_from_db()
+        self.assertTrue(meal_item.meal.done)
+        self.assertEquals(timezone.now().date(), meal_item.meal.done_at)
         update.message.reply_text.assert_called_once_with(
-            "Resolví la comida `test meal` a cargo de *test name*\\.",
+            f"Resolví la comida {meal_item.meal.id}\\.",
         )
 
     @override_settings(CHAT_ID=1)

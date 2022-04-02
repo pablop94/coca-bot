@@ -1,14 +1,25 @@
+from django.db import transaction
 from django.db.models import Count
 from meals.exceptions import NoMealConfigured
-from meals.models import Meal, Participant, Skip
+from meals.models import Meal, MealItem, Participant, Skip
 
 
-def add_meal(user, meal):
-    participant = Participant.objects.get(name__iexact=user)
-    return Meal.objects.create(
-        meal_owner=participant,
-        description=meal,
-    )
+def add_meal(meals_to_create):
+    with transaction.atomic():
+        meal = Meal.objects.create()
+
+        MealItem.objects.bulk_create(
+            [
+                MealItem(
+                    owner=Participant.objects.get(name__iexact=owner),
+                    description=description,
+                    meal=meal,
+                )
+                for owner, description in meals_to_create
+            ]
+        )
+
+        return meal
 
 
 def get_next_meal():
@@ -19,7 +30,7 @@ def get_next_meal():
     meal.mark_as_done()
     meal.save()
 
-    return meal.meal_owner.name, meal.description, _remaining_meals()
+    return meal, _remaining_meals()
 
 
 def delete_meal(meal_id):
@@ -32,8 +43,8 @@ def delete_meal(meal_id):
 
 def history():
     return (
-        Participant.objects.filter(meal__done=True)
-        .annotate(total_meals=Count("meal__pk"))
+        Participant.objects.filter(mealitem__meal__done=True)
+        .annotate(total_meals=Count("mealitem__meal__pk"))
         .order_by("-total_meals")
     )
 

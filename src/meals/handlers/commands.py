@@ -4,6 +4,7 @@ from telegram.ext import CommandHandler
 from telegram.ext.filters import Filters
 
 from meals.decorators import chat_id_required
+from meals.exceptions import IncompleteMeal
 from meals.graphs import send_history_chart
 from meals.models import Meal, Participant
 from meals.formatters import format_name
@@ -20,21 +21,45 @@ from meals.views import (
 logger = logging.getLogger(__name__)
 
 
+def parse_add_meal_args(args):
+    message = " ".join(args)
+
+    meals = message.split(",")
+    parsed_meals = []
+    for meal in meals:
+        meal = meal.strip()
+        owner, *meal_elements = meal.split(" ")
+        if not meal_elements:
+            raise IncompleteMeal(meal)
+
+        parsed_meals.append((owner, " ".join(meal_elements)))
+
+    return parsed_meals
+
+
 @chat_id_required
 def add_meal_handler(update, context):
-    if len(context.args) < 2:
+    try:
+        meals_to_create = parse_add_meal_args(context.args)
+    except IncompleteMeal:
         logger.info("Recibido agregar con parámetros incompletos.")
         update.message.reply_text(
             "Para que pueda agregar necesito que me pases un nombre y una comida\\."
         )
     else:
         logger.info("Agregando recordatorio de comida.")
-        meal = " ".join(context.args[1:])
-        name = context.args[0]
         try:
-            meal_obj = add_meal(name, meal)
+            meal_obj = add_meal(meals_to_create)
+
+            if len(meals_to_create) == 1:
+                message = f"Ahí agregué la comida: {meal_obj.mealitem_set.first()}"
+            else:
+                message = "Ahí agregué la comida:"
+                for meal_item in meal_obj.mealitem_set.all():
+                    message += f"\n\\- {meal_item}"
+
             update.message.reply_text(
-                f"Ahí agregué la comida {meal_obj}\\.",
+                message,
             )
         except Participant.DoesNotExist:
             valid_names = Participant.objects.all().values_list("name", flat=True)
@@ -42,7 +67,7 @@ def add_meal_handler(update, context):
             for valid_name in valid_names:
                 valid_names_joined += f"\n\\- {valid_name}"
             update.message.reply_text(
-                f"{format_name(name)} no es un usuario válido, los válidos son:{valid_names_joined}"
+                f"Hay usuarios inválidos, los válidos son:{valid_names_joined}"
             )
 
 
@@ -86,9 +111,12 @@ def next_meals_handler(update, context):
 
     if meals:
         logger.info("Enviando proximas comidas.")
-        message = "Las próximas comidas son:\n"
+        message = "Las próximas comidas son:"
         for meal in meals:
-            message += f"\\- {meal} \\(id: {meal.pk}\\)\\.\n"
+            message += f"\n\\-\\-\\-\\- \\(id: {meal.pk}\\)"
+
+            for meal_item in meal.mealitem_set.all():
+                message += f"\n\t\\- {meal_item}"
 
         update.message.reply_text(message)
     else:
@@ -100,10 +128,11 @@ def next_meals_handler(update, context):
 def delete_meal_handler(update, context):
     try:
         if _is_valid_as_id(context.args):
-            meal = delete_meal(context.args[0])
+            meal_id = context.args[0]
+            delete_meal(meal_id)
             logger.info("Borrando comida.")
             update.message.reply_text(
-                f"Borré la comida {meal}\\.",
+                f"Borré la comida {meal_id}\\.",
             )
         else:
             logger.info("Recibido borrar sin parametro o con parametro invalido.")
@@ -124,7 +153,7 @@ def resolve_meal_handler(update, context):
             meal = resolve_meal(context.args[0])
             logger.info("Resolviendo comida.")
             update.message.reply_text(
-                f"Resolví la comida {meal}\\.",
+                f"Resolví la comida {meal.id}\\.",
             )
         else:
             logger.info("Recibido resolver sin parametro o con parametro invalido.")

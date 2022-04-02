@@ -1,6 +1,6 @@
 import factory
 from datetime import datetime
-from meals.models import Meal, Participant, Skip
+from meals.models import Meal, MealItem, Participant, Skip
 
 
 class ParticipantFactory(factory.django.DjangoModelFactory):
@@ -14,11 +14,18 @@ class MealFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Meal
 
-    meal_owner = factory.SubFactory(ParticipantFactory)
-    description = "test meal"
     done = False
     done_at = None
     created_at = factory.LazyFunction(datetime.now)
+
+
+class MealItemFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = MealItem
+
+    meal = factory.SubFactory(MealFactory)
+    owner = factory.SubFactory(ParticipantFactory)
+    description = "test meal"
 
 
 class SkipFactory(factory.django.DjangoModelFactory):
