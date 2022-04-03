@@ -1,10 +1,6 @@
-import locale
 from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
-
-# use user's default settings
-locale.setlocale(locale.LC_ALL, "es_AR.utf8")
 
 
 def get_next_meal_date():
