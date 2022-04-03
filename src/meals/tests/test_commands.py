@@ -169,7 +169,7 @@ class CommandsTest(TestCase):
     @patch(
         "meals.handlers.utils.timezone.now",
         side_effect=lambda: datetime.strptime(
-            "2022-04-02 15:27:05.004573 +0300", "%Y-%m-%d %H:%M:%S.%f %z"
+            "2022-04-02 15:27:05.004573 -0300", "%Y-%m-%d %H:%M:%S.%f %z"
         ),
     )
     def test_next_meals_handler(self, *args):
