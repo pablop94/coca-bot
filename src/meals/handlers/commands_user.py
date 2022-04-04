@@ -109,7 +109,6 @@ def next_meals_handler(update, context):
 
     if meals:
         next_date = get_next_meal_date()
-        weeks_offset = 0
         logger.info("Enviando proximas comidas.")
         message = "*Las próximas comidas son:*"
         for meal in meals:
@@ -118,8 +117,7 @@ def next_meals_handler(update, context):
             for meal_item in meal.mealitem_set.all():
                 message += f"\n\t\\- {meal_item}"
 
-            weeks_offset += 1
-            next_date = next_date + timedelta(weeks=weeks_offset)
+            next_date += timedelta(weeks=1)
         update.message.reply_text(message)
     else:
         logger.info("Enviando ausencia de próximas comidas.")

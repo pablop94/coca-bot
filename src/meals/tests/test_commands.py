@@ -134,7 +134,7 @@ class CommandsTest(TestCase):
             "El historial es: \n\n\\- *test1* compró para `2` comidas\\.\n\\- *test2* compró para `1` comida\\."
         )
 
-    @override_settings(CHAT_ID=2)
+    @override_settings(CHAT_ID=2, DEVELOPER_CHAT_ID=1)
     def test_history_handler_unknown_chat(self, *args):
         p1 = ParticipantFactory(name="test1")
         p2 = ParticipantFactory(name="test2")
@@ -194,6 +194,12 @@ class CommandsTest(TestCase):
             meal=meal,
             owner=ParticipantFactory(name="test name3"),
         )
+        meal2 = MealFactory()
+        MealItemFactory(
+            description="test meal4",
+            meal=meal2,
+            owner=ParticipantFactory(name="test name4"),
+        )
         context = get_mock_context()
         update = get_mock_update()
         next_meals_handler(update, context)
@@ -206,7 +212,10 @@ martes 5 de abril _\\(id: {meal_item1.meal.id}\\)_
 
 martes 12 de abril _\\(id: {meal.id}\\)_
 \t\\- `test meal2` a cargo de *test name2*
-\t\\- `test meal3` a cargo de *test name3*""",
+\t\\- `test meal3` a cargo de *test name3*
+
+martes 19 de abril _\\(id: {meal2.id}\\)_
+\t\\- `test meal4` a cargo de *test name4*""",
         )
 
     @override_settings(CHAT_ID=1)
@@ -217,7 +226,7 @@ martes 12 de abril _\\(id: {meal.id}\\)_
 
         update.message.reply_text.assert_called_once_with("No hay próximas comidas\\.")
 
-    @override_settings(CHAT_ID=2)
+    @override_settings(CHAT_ID=2, DEVELOPER_CHAT_ID=1)
     def test_next_meals_handler_unknown_chat(self, *args):
         context = get_mock_context()
         update = get_mock_update()
