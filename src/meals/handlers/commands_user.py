@@ -35,7 +35,7 @@ def parse_add_meal_args(args):
     return parsed_meals
 
 
-@chat_id_required
+@chat_id_required()
 def add_meal_handler(update, context):
     try:
         meals_to_create = parse_add_meal_args(context.args)
@@ -69,7 +69,7 @@ def add_meal_handler(update, context):
             )
 
 
-@chat_id_required
+@chat_id_required(read_only=True)
 def history_handler(update, context):
     logger.info("Enviando historial de comidas.")
     body, graph = get_history("El historial es:")
@@ -95,7 +95,7 @@ def get_history(header):
     return body, graph_data
 
 
-@chat_id_required
+@chat_id_required()
 def skip_handler(update, context):
     add_skip()
     logger.info("Agregando skip.")
@@ -103,7 +103,7 @@ def skip_handler(update, context):
     update.message.reply_text("Perfecto, me salteo una comida\\.")
 
 
-@chat_id_required
+@chat_id_required(read_only=True)
 def next_meals_handler(update, context):
     meals = get_next_meals()
 
@@ -126,7 +126,7 @@ def next_meals_handler(update, context):
         update.message.reply_text("No hay próximas comidas\\.")
 
 
-@chat_id_required
+@chat_id_required()
 def delete_meal_handler(update, context):
     try:
         if _is_valid_as_id(context.args):
@@ -148,7 +148,7 @@ def delete_meal_handler(update, context):
         )
 
 
-@chat_id_required
+@chat_id_required()
 def resolve_meal_handler(update, context):
     try:
         if _is_valid_as_id(context.args):

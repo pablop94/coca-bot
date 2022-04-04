@@ -12,21 +12,26 @@ def get_handler_name(name):
     return "_".join(parts[: len(parts) - 1])
 
 
-def chat_id_required(fn):
-    fnname = get_handler_name(fn.__name__)
+def chat_id_required(read_only=False):
+    def decorator(fn):
+        fnname = get_handler_name(fn.__name__)
 
-    def inner(update, context):
-        if update.message.chat.id == settings.CHAT_ID:
-            fn(update, context)
-        else:
-            logger.warning(
-                f"Recibido <{fnname}> desde un chat no configurado: {update.message.chat.id}."
-            )
-            update.message.reply_photo(
-                "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
-            )
+        def inner(update, context):
+            if update.message.chat.id == settings.CHAT_ID or (
+                read_only and update.message.chat.id == settings.DEVELOPER_CHAT_ID
+            ):
+                fn(update, context)
+            else:
+                logger.warning(
+                    f"Recibido <{fnname}> desde un chat no configurado: {update.message.chat.id}."
+                )
+                update.message.reply_photo(
+                    "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
+                )
 
-    return inner
+        return inner
+
+    return decorator
 
 
 def developer_chat_id_required(fn):

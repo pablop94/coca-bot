@@ -12,25 +12,25 @@ logger = logging.getLogger(__name__)
 
 
 @random_run
-@chat_id_required
+@chat_id_required()
 def rica_handler(update, context):
     _send_audio(update, "rica.mp3", "rica, rica... amarga")
 
 
 @random_run
-@chat_id_required
+@chat_id_required()
 def pegar_handler(update, context):
     _send_audio(update, "pegar.mp3", "pegar falopa")
 
 
 @random_run
-@chat_id_required
+@chat_id_required()
 def chocolate_handler(update, context):
     _send_audio(update, "chocolate.mp3", "chocolate")
 
 
 @random_run
-@chat_id_required
+@chat_id_required()
 def intentar_handler(update, context):
     _send_audio(update, "intentar.mp3", "intentar")
 
