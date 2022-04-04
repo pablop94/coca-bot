@@ -24,7 +24,7 @@ def send_reminder_from_bot(bot):
         try:
             meal, remaining = get_next_meal()
             logger.info("Enviando recordatorio de comida.")
-            message = "Hola!"
+            message = "Hola\\!"
             for meal_item in meal.mealitem_set.all():
                 message += f"\n\\- {format_name(meal_item.owner.name)} te toca comprar los ingredientes para hacer {format_meal(meal_item.description)}\\."
             bot.send_message(
