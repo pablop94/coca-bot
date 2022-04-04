@@ -27,7 +27,7 @@ class HandlerTest(TestCase):
 
         context.bot.send_message.assert_called_once_with(
             "",
-            """Hola!\n\\- *test name* te toca comprar los ingredientes para hacer `test meal`\\.""",
+            """Hola\\!\n\\- *test name* te toca comprar los ingredientes para hacer `test meal`\\.""",
             parse_mode=ParseMode().MARKDOWN_V2,
         )
 
@@ -51,7 +51,7 @@ class HandlerTest(TestCase):
             [
                 call(
                     "",
-                    """Hola!\n\\- *test2* te toca comprar los ingredientes para hacer `test2`\\.""",
+                    """Hola\\!\n\\- *test2* te toca comprar los ingredientes para hacer `test2`\\.""",
                     parse_mode=ParseMode().MARKDOWN_V2,
                 ),
                 call(
@@ -73,7 +73,7 @@ class HandlerTest(TestCase):
             [
                 call(
                     "",
-                    "Hola!\n\\- *test name* te toca comprar los ingredientes para hacer `test meal`\\.",
+                    "Hola\\!\n\\- *test name* te toca comprar los ingredientes para hacer `test meal`\\.",
                     parse_mode=ParseMode().MARKDOWN_V2,
                 ),
                 call(
