@@ -4,7 +4,7 @@ from environ import Path
 
 env = environ.Env(
     RANDOM_RUN_PROBABILITY=(int, 50),
-    REMINDER_DAYS=lambda value: tuple(int(e) for e in value.split(",")),
+    REMINDER_DAY=(int, 0),
     TELEGRAM_TOKEN=str,
     REMINDER_HOUR_UTC=(int, 10),
     HISTORY_RESUME_DAY=(int, 31),
@@ -129,6 +129,6 @@ CHAT_ID = env("CHAT_ID")
 DEVELOPER_CHAT_ID = env("DEVELOPER_CHAT_ID")
 HISTORY_RESUME_DAY = env("HISTORY_RESUME_DAY")
 RANDOM_RUN_PROBABILITY = env("RANDOM_RUN_PROBABILITY")
-REMINDER_DAYS = env("REMINDER_DAYS")
+REMINDER_DAY = env("REMINDER_DAY")
 REMINDER_HOUR_UTC = env("REMINDER_HOUR_UTC")
 TELEGRAM_TOKEN = env("TELEGRAM_TOKEN")
