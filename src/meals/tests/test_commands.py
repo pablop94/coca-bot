@@ -136,12 +136,18 @@ class CommandsTest(TestCase):
 
     @override_settings(CHAT_ID=2)
     def test_history_handler_unknown_chat(self, *args):
-        context = get_mock_context(["name", "meal"])
+        p1 = ParticipantFactory(name="test1")
+        p2 = ParticipantFactory(name="test2")
+
+        MealItemFactory(meal=MealFactory(done=True), owner=p1)
+        MealItemFactory(meal=MealFactory(done=True), owner=p1)
+        MealItemFactory(meal=MealFactory(done=True), owner=p2)
+        context = get_mock_context()
         update = get_mock_update()
         history_handler(update, context)
 
-        update.message.reply_photo.assert_called_once_with(
-            "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
+        update.message.reply_text.assert_called_once_with(
+            "El historial es: \n\n\\- *test1* compró para `2` comidas\\.\n\\- *test2* compró para `1` comida\\."
         )
 
     @override_settings(CHAT_ID=1)
@@ -217,9 +223,7 @@ martes 12 de abril _\\(id: {meal.id}\\)_
         update = get_mock_update()
         next_meals_handler(update, context)
 
-        update.message.reply_photo.assert_called_once_with(
-            "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
-        )
+        update.message.reply_text.assert_called_once_with("No hay próximas comidas\\.")
 
     @override_settings(CHAT_ID=1)
     def test_delete_first_meal_handler(self, *args):

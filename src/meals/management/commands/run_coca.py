@@ -40,13 +40,13 @@ def start_bot():
     defaults = Defaults(quote=False, parse_mode=ParseMode.MARKDOWN_V2)
     updater = Updater(token=settings.TELEGRAM_TOKEN, defaults=defaults)
 
-    days = settings.REMINDER_DAY
+    day = settings.REMINDER_DAY
     hour = settings.REMINDER_HOUR_UTC
     minute = 0 if not settings.DEBUG else datetime.datetime.now().minute + 1
     updater.job_queue.run_daily(
         send_reminder,
         time=datetime.time(hour=hour, minute=minute),
-        days=days,
+        days=(day,),
     )
 
     history_day = settings.HISTORY_RESUME_DAY
