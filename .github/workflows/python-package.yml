@@ -59,7 +59,7 @@ jobs:
         DEVELOPER_CHAT_ID: 1
         TELEGRAM_TOKEN: asd:13
         REMINDER_HOUR_UTC: 10
-        REMINDER_DAYS: 0
+        REMINDER_DAY: 0
         HISTORY_RESUME_DAY: 1
       run: |
         cd src/ && python manage.py test

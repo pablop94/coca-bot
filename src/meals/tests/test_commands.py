@@ -166,6 +166,7 @@ class CommandsTest(TestCase):
         )
 
     @override_settings(CHAT_ID=1)
+    @override_settings(REMINDER_DAY=0)
     @patch(
         "meals.handlers.utils.timezone.now",
         side_effect=lambda: datetime.strptime(

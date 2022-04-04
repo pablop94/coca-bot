@@ -3,7 +3,7 @@
 La coca es un bot que nace para recordarnos a un grupo de amigues quienes tienen que hacer las compras para las juntadas.
 
 ## Comandos
-`/agregar nombre comida[, nombre2 comida2...]` Con este comando agregamos una comida a la lista. Se enviará un recordatorio los días `REMINDER_DAYS` a las `REMINDER_HOUR_UTC` en punto, teniendo en cuenta el orden en el que fueron ingresadas.
+`/agregar nombre comida[, nombre2 comida2...]` Con este comando agregamos una comida a la lista. Se enviará un recordatorio los días `REMINDER_DAY` a las `REMINDER_HOUR_UTC` en punto, teniendo en cuenta el orden en el que fueron ingresadas.
 Se pueden agregar varias comidas enviando: 
 ```
 /agregar nombre1 comida1, nombre2 comida2,nombre3 comida con muchas palabras
@@ -24,7 +24,7 @@ Se pueden agregar varias comidas enviando:
 - `DEVELOPER_CHAT_ID` el chat donde se enviarán errores en caso de haberlos.
 - `TELEGRAM_TOKEN` el token del bot de Telegram.
 - `REMINDER_HOUR_UTC` la hora a la que se envía el recordatorio en UTC.
-- `REMINDER_DAYS` los días en que se envía el recordatorio, 0 es lunes, 6 es domingo separado por coma. Por ejemplo 2,3 lo envía miercoles y jueves.
+- `REMINDER_DAY` el día en que se envía el recordatorio, 0 es lunes, 6 es domingo.
 - `HISTORY_RESUME_DAY` el día del mes donde se envía el histórico de compras. Por defecto es 31 y si el mes no tiene 31, se envía el último día.
 - `RANDOM_RUN_PROBABILITY` la probabilidad de que la coca envíe respuestas de audio. Por defecto es 50%.
 
