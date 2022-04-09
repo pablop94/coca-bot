@@ -1,10 +1,10 @@
 import logging
 from datetime import timedelta
-from meals.decorators import chat_id_required
+from meals.decorators import chat_id_required, meal_id_required
 from meals.exceptions import IncompleteMeal
 from meals.graphs import send_history_chart
 from meals.handlers.utils import get_next_meal_date
-from meals.models import Meal, Participant
+from meals.models import Participant
 from meals.formatters import format_name, format_meal_with_date
 from meals.views import (
     add_meal,
@@ -145,57 +145,27 @@ def previous_meals_handler(update, context):
 
 
 @chat_id_required()
-def delete_meal_handler(update, context):
-    try:
-        if _is_valid_as_id(context.args):
-            meal_id = context.args[0]
-            delete_meal(meal_id)
-            logger.info("Borrando comida.")
-            update.message.reply_text(
-                f"Borré la comida {meal_id}\\.",
-            )
-        else:
-            logger.info("Recibido borrar sin parametro o con parametro invalido.")
-            update.message.reply_text(
-                "Para borrar necesito un id\\. Podes ver el id usando \\/proximas\\."
-            )
-    except Meal.DoesNotExist:
-        logger.info("Se quiso borrar una comida inexistente.")
-        update.message.reply_text(
-            f"Nada que borrar, no hay comida con id {context.args[0]}\\."
-        )
+@meal_id_required(
+    action_name="borrar",
+)
+def delete_meal_handler(update, meal_id):
+    delete_meal(meal_id)
+    logger.info("Borrando comida.")
+    update.message.reply_text(
+        f"Borré la comida {meal_id}\\.",
+    )
 
 
 @chat_id_required()
-def resolve_meal_handler(update, context):
-    try:
-        if _is_valid_as_id(context.args):
-            meal = resolve_meal(context.args[0])
-            logger.info("Resolviendo comida.")
-            update.message.reply_text(
-                f"Resolví la comida {meal.id}\\.",
-            )
-        else:
-            logger.info("Recibido resolver sin parametro o con parametro invalido.")
-            update.message.reply_text(
-                "Para resolver necesito un id\\. Podes ver el id usando \\/proximas\\."
-            )
-    except Meal.DoesNotExist:
-        logger.info("Se quiso resolver una comida inexistente.")
-        update.message.reply_text(
-            f"Nada que resolver, no hay comida con id {context.args[0]}\\."
-        )
-
-
-def _is_valid_as_id(args):
-    try:
-        if len(args) > 0:
-            int(args[0])
-            return True
-        else:
-            return False
-    except ValueError:
-        return False
+@meal_id_required(
+    action_name="resolver",
+)
+def resolve_meal_handler(update, meal_id):
+    meal = resolve_meal(meal_id)
+    logger.info("Resolviendo comida.")
+    update.message.reply_text(
+        f"Resolví la comida {meal.id}\\.",
+    )
 
 
 COMMANDS_ARGS = [

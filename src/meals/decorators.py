@@ -3,6 +3,8 @@ import logging
 
 from django.conf import settings
 
+from meals.models import Meal
+
 
 logger = logging.getLogger(__name__)
 
@@ -57,3 +59,39 @@ def random_run(fn):
             fn(*args, **kwargs)
 
     return inner
+
+
+def meal_id_required(action_name=None):
+    def decorator(fn):
+        def inner(update, context):
+            try:
+                if _is_valid_as_id(context.args):
+                    meal_id = context.args[0]
+                    fn(update, meal_id)
+                else:
+                    logger.info(
+                        f"Recibido {action_name} sin parametro o con parametro invalido."
+                    )
+                    update.message.reply_text(
+                        f"Para {action_name} necesito un id\\. Podes ver el id usando \\/proximas\\."
+                    )
+            except Meal.DoesNotExist:
+                logger.info(f"Se quiso {action_name} una comida inexistente.")
+                update.message.reply_text(
+                    f"Nada que {action_name}, no hay comida con id {meal_id}\\."
+                )
+
+        return inner
+
+    return decorator
+
+
+def _is_valid_as_id(args):
+    try:
+        if len(args) > 0:
+            int(args[0])
+            return True
+        else:
+            return False
+    except ValueError:
+        return False
