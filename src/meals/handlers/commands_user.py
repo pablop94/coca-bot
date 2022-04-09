@@ -12,6 +12,7 @@ from meals.views import (
     add_skip,
     get_next_meals,
     delete_meal,
+    copy_meal,
     resolve_meal,
     get_previous_meals,
 )
@@ -50,16 +51,7 @@ def add_meal_handler(update, context):
         try:
             meal_obj = add_meal(meals_to_create)
 
-            if len(meals_to_create) == 1:
-                message = f"Ahí agregué la comida: {meal_obj.mealitem_set.first()}"
-            else:
-                message = "Ahí agregué la comida:"
-                for meal_item in meal_obj.mealitem_set.all():
-                    message += f"\n\\- {meal_item}"
-
-            update.message.reply_text(
-                message,
-            )
+            send_meal_created_message(meal_obj, update)
         except Participant.DoesNotExist:
             valid_names = Participant.objects.all().values_list("name", flat=True)
             valid_names_joined = ""
@@ -168,12 +160,33 @@ def resolve_meal_handler(update, meal_id):
     )
 
 
+@chat_id_required()
+@meal_id_required(
+    action_name="copiar",
+)
+def copy_meal_handler(update, meal_id):
+    meal = copy_meal(meal_id)
+    logger.info("Resolviendo comida.")
+    send_meal_created_message(meal, update)
+
+
+def send_meal_created_message(meal_obj, update):
+    message = "Ahí agregué la comida:"
+    for meal_item in meal_obj.mealitem_set.all():
+        message += f"\n\\- {meal_item}"
+
+    update.message.reply_text(
+        message,
+    )
+
+
 COMMANDS_ARGS = [
     ("agregar", add_meal_handler),
     ("historial", history_handler),
     ("saltear", skip_handler),
     ("proximas", next_meals_handler),
     ("borrar", delete_meal_handler),
+    ("copiar", copy_meal_handler),
     ("resolver", resolve_meal_handler),
     ("ultimas", previous_meals_handler),
 ]

@@ -9,6 +9,7 @@ from meals.handlers import (
     history_handler,
     skip_handler,
     next_meals_handler,
+    copy_meal_handler,
     delete_meal_handler,
     resolve_meal_handler,
     previous_meals_handler,
@@ -45,7 +46,7 @@ class CommandsTest(TestCase):
         self.assertEquals(Meal.objects.first().done, False)
         self.assertEquals(MealItem.objects.first().description, "meal")
         update.message.reply_text.assert_called_once_with(
-            "Ahí agregué la comida: `meal` a cargo de *existing*"
+            "Ahí agregué la comida:\n\\- `meal` a cargo de *existing*"
         )
 
     @override_settings(CHAT_ID=1)
@@ -396,3 +397,86 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
         previous_meals_handler(update, context)
 
         update.message.reply_text.assert_called_once_with("No hay últimas comidas\\.")
+
+    @override_settings(CHAT_ID=1)
+    def test_copy_meal_handler(self, *args):
+        participant1 = ParticipantFactory(name="other")
+        participant2 = ParticipantFactory(name="other2")
+        meal = MealFactory(done=True)
+        MealItemFactory(
+            owner=ParticipantFactory(name="test name"),
+            description="test meal",
+            meal=meal,
+        )
+        MealItemFactory(
+            owner=ParticipantFactory(name="test name2"),
+            description="test meal2",
+            meal=meal,
+        )
+
+        context = get_mock_context([meal.id])
+        update = get_mock_update()
+        with patch(
+            "meals.views.random.choice", side_effect=[participant1.id, participant2.id]
+        ):
+            copy_meal_handler(update, context)
+
+        self.assertEquals(2, Meal.objects.count())
+        update.message.reply_text.assert_called_once_with(
+            "Ahí agregué la comida:\n\\- `test meal` a cargo de *other*\n\\- `test meal2` a cargo de *other2*"
+        )
+
+    @override_settings(CHAT_ID=1)
+    def test_copy_meal_handler_no_more_participants(self, *args):
+        participant1 = ParticipantFactory(name="other")
+        meal = MealFactory(done=True)
+        MealItemFactory(
+            owner=ParticipantFactory(name="test name"),
+            description="test meal",
+            meal=meal,
+        )
+        MealItemFactory(
+            owner=ParticipantFactory(name="test name2"),
+            description="test meal2",
+            meal=meal,
+        )
+
+        context = get_mock_context([meal.id])
+        update = get_mock_update()
+        with patch("meals.views.random.choice", side_effect=[participant1.id]):
+            copy_meal_handler(update, context)
+
+        self.assertEquals(2, Meal.objects.count())
+        update.message.reply_text.assert_called_once_with(
+            "Ahí agregué la comida:\n\\- `test meal` a cargo de *other*\n\\- `test meal2` a cargo de *test name2*"
+        )
+
+    @override_settings(CHAT_ID=1)
+    def test_copy_meal_handler_no_meals(self, *args):
+        context = get_mock_context(["1"])
+        update = get_mock_update()
+        copy_meal_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "Nada que copiar, no hay comida con id 1\\.",
+        )
+
+    @override_settings(CHAT_ID=1)
+    def test_copy_meal_handler_invalid_id(self, *args):
+        context = get_mock_context(["asd"])
+        update = get_mock_update()
+        copy_meal_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "Para copiar necesito un id\\. Podes ver el id usando \\/proximas\\."
+        )
+
+    @override_settings(CHAT_ID=2)
+    def test_copy_meal_handler_unknown_chat(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        copy_meal_handler(update, context)
+
+        update.message.reply_photo.assert_called_once_with(
+            "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
+        )
