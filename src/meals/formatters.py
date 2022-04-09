@@ -27,3 +27,7 @@ def format_month(month_number):
         "noviembre",
         "diciembre",
     ][month_number]
+
+
+def format_meal_with_date(date, meal):
+    return f"\n\n{date.strftime(f'{format_weekday(date.weekday())} %-d de {format_month(date.month-1)}')} _\\(id: {meal.pk}\\)_"

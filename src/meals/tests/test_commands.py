@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch
 from django.test import TestCase, override_settings
 from django.utils import timezone
-from meals.tests.factories import MealFactory, MealItemFactory, ParticipantFactory
-from meals.models import Meal, MealItem, Participant, Skip
+
+from meals.formatters import format_meal_with_date
 from meals.handlers import (
     add_meal_handler,
     history_handler,
@@ -11,8 +11,11 @@ from meals.handlers import (
     next_meals_handler,
     delete_meal_handler,
     resolve_meal_handler,
+    previous_meals_handler,
 )
+from meals.models import Meal, MealItem, Participant, Skip
 from meals.tests.base import get_mock_context, get_mock_update
+from meals.tests.factories import MealFactory, MealItemFactory, ParticipantFactory
 
 
 class CommandsTest(TestCase):
@@ -325,3 +328,71 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
         update.message.reply_photo.assert_called_once_with(
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
+
+    @override_settings(CHAT_ID=1)
+    @override_settings(REMINDER_DAY=0)
+    def test_previous_meals_handler(self, *args):
+        meal1 = MealFactory(done=True, done_at=datetime.now() - timedelta(days=10))
+        MealItemFactory(
+            description="test meal",
+            owner=ParticipantFactory(name="test name"),
+            meal=meal1,
+        )
+        meal2 = MealFactory(done=True, done_at=datetime.now() - timedelta(days=9))
+        MealItemFactory(
+            description="test meal2",
+            owner=ParticipantFactory(name="test name2"),
+            meal=meal2,
+        )
+        meal3 = MealFactory(done=True, done_at=datetime.now() - timedelta(days=8))
+        MealItemFactory(
+            description="test meal3",
+            owner=ParticipantFactory(name="test name3"),
+            meal=meal3,
+        )
+        meal4 = MealFactory(done=True, done_at=datetime.now() - timedelta(days=7))
+        MealItemFactory(
+            description="test meal4",
+            owner=ParticipantFactory(name="test name4"),
+            meal=meal4,
+        )
+        meal5 = MealFactory(done=True, done_at=datetime.now() - timedelta(days=6))
+        MealItemFactory(
+            description="test meal5",
+            owner=ParticipantFactory(name="test name5"),
+            meal=meal5,
+        )
+        meal6 = MealFactory(done=True, done_at=datetime.now() - timedelta(days=5))
+        MealItemFactory(
+            description="test meal6",
+            owner=ParticipantFactory(name="test name6"),
+            meal=meal6,
+        )
+        context = get_mock_context()
+        update = get_mock_update()
+        previous_meals_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            f"""*Las últimas 5 comidas fueron:*{format_meal_with_date(meal6.done_at, meal6)}
+\t\\- `test meal6` a cargo de *test name6*{format_meal_with_date(meal5.done_at, meal5)}
+\t\\- `test meal5` a cargo de *test name5*{format_meal_with_date(meal4.done_at, meal4)}
+\t\\- `test meal4` a cargo de *test name4*{format_meal_with_date(meal3.done_at, meal3)}
+\t\\- `test meal3` a cargo de *test name3*{format_meal_with_date(meal2.done_at, meal2)}
+\t\\- `test meal2` a cargo de *test name2*""",
+        )
+
+    @override_settings(CHAT_ID=1)
+    def test_previous_meals_handler_no_meals(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        previous_meals_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with("No hay últimas comidas\\.")
+
+    @override_settings(CHAT_ID=2, DEVELOPER_CHAT_ID=1)
+    def test_previous_meals_handler_unknown_chat(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+        previous_meals_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with("No hay últimas comidas\\.")

@@ -70,6 +70,10 @@ def get_next_meals():
     return Meal.objects.filter(done=False)
 
 
+def get_previous_meals(limit):
+    return Meal.objects.filter(done=True).order_by("-id")[:limit]
+
+
 def resolve_meal(meal_id):
     meal = Meal.objects.get(id=meal_id)
     meal.mark_as_done()
