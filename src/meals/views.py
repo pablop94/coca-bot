@@ -1,3 +1,4 @@
+import random
 from django.db import transaction
 from django.db.models import Count
 from meals.exceptions import NoMealConfigured
@@ -80,3 +81,30 @@ def resolve_meal(meal_id):
     meal.save()
 
     return meal
+
+
+def copy_meal(meal_id):
+    new_meal = Meal.objects.create()
+
+    meal = Meal.objects.get(id=meal_id)
+    possible_owners = set(
+        Participant.objects.exclude(
+            id__in=meal.mealitem_set.values("owner_id")
+        ).values_list("id", flat=True)
+    )
+
+    new_items = []
+    for meal_item in meal.mealitem_set.all():
+        if possible_owners:
+            owner = random.choice(list(possible_owners))
+            possible_owners.remove(owner)
+        else:
+            owner = meal_item.owner_id
+
+        new_items.append(
+            MealItem(meal=new_meal, owner_id=owner, description=meal_item.description)
+        )
+
+    MealItem.objects.bulk_create(new_items)
+
+    return new_meal

@@ -15,9 +15,13 @@ Se pueden agregar varias comidas enviando:
 
 `/proximas` Con este comando Coca te muestra las próximas comidas.
 
+`/ultimas` Con este comando Coca te muestra las últimas 5 comidas.
+
 `/borrar [id]` Con este comando Coca borra la comida con `id`.
 
 `/resolver [id]` Con este comando Coca resuelve la comida con `id` antes del recordatorio.
+
+`/copiar [id]` Con este comando Coca copia la comida con `id` con nuevas asignaciones.
 
 ## Variables de ambiente
 - `CHAT_ID` el chat donde se enviará el recordatorio.

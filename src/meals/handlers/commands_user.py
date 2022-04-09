@@ -1,10 +1,10 @@
 import logging
 from datetime import timedelta
-from meals.decorators import chat_id_required
+from meals.decorators import chat_id_required, meal_id_required
 from meals.exceptions import IncompleteMeal
 from meals.graphs import send_history_chart
 from meals.handlers.utils import get_next_meal_date
-from meals.models import Meal, Participant
+from meals.models import Participant
 from meals.formatters import format_name, format_meal_with_date
 from meals.views import (
     add_meal,
@@ -12,6 +12,7 @@ from meals.views import (
     add_skip,
     get_next_meals,
     delete_meal,
+    copy_meal,
     resolve_meal,
     get_previous_meals,
 )
@@ -50,16 +51,7 @@ def add_meal_handler(update, context):
         try:
             meal_obj = add_meal(meals_to_create)
 
-            if len(meals_to_create) == 1:
-                message = f"Ahí agregué la comida: {meal_obj.mealitem_set.first()}"
-            else:
-                message = "Ahí agregué la comida:"
-                for meal_item in meal_obj.mealitem_set.all():
-                    message += f"\n\\- {meal_item}"
-
-            update.message.reply_text(
-                message,
-            )
+            send_meal_created_message(meal_obj, update)
         except Participant.DoesNotExist:
             valid_names = Participant.objects.all().values_list("name", flat=True)
             valid_names_joined = ""
@@ -145,57 +137,47 @@ def previous_meals_handler(update, context):
 
 
 @chat_id_required()
-def delete_meal_handler(update, context):
-    try:
-        if _is_valid_as_id(context.args):
-            meal_id = context.args[0]
-            delete_meal(meal_id)
-            logger.info("Borrando comida.")
-            update.message.reply_text(
-                f"Borré la comida {meal_id}\\.",
-            )
-        else:
-            logger.info("Recibido borrar sin parametro o con parametro invalido.")
-            update.message.reply_text(
-                "Para borrar necesito un id\\. Podes ver el id usando \\/proximas\\."
-            )
-    except Meal.DoesNotExist:
-        logger.info("Se quiso borrar una comida inexistente.")
-        update.message.reply_text(
-            f"Nada que borrar, no hay comida con id {context.args[0]}\\."
-        )
+@meal_id_required(
+    action_name="borrar",
+)
+def delete_meal_handler(update, meal_id):
+    delete_meal(meal_id)
+    logger.info("Borrando comida.")
+    update.message.reply_text(
+        f"Borré la comida {meal_id}\\.",
+    )
 
 
 @chat_id_required()
-def resolve_meal_handler(update, context):
-    try:
-        if _is_valid_as_id(context.args):
-            meal = resolve_meal(context.args[0])
-            logger.info("Resolviendo comida.")
-            update.message.reply_text(
-                f"Resolví la comida {meal.id}\\.",
-            )
-        else:
-            logger.info("Recibido resolver sin parametro o con parametro invalido.")
-            update.message.reply_text(
-                "Para resolver necesito un id\\. Podes ver el id usando \\/proximas\\."
-            )
-    except Meal.DoesNotExist:
-        logger.info("Se quiso resolver una comida inexistente.")
-        update.message.reply_text(
-            f"Nada que resolver, no hay comida con id {context.args[0]}\\."
-        )
+@meal_id_required(
+    action_name="resolver",
+)
+def resolve_meal_handler(update, meal_id):
+    meal = resolve_meal(meal_id)
+    logger.info("Resolviendo comida.")
+    update.message.reply_text(
+        f"Resolví la comida {meal.id}\\.",
+    )
 
 
-def _is_valid_as_id(args):
-    try:
-        if len(args) > 0:
-            int(args[0])
-            return True
-        else:
-            return False
-    except ValueError:
-        return False
+@chat_id_required()
+@meal_id_required(
+    action_name="copiar",
+)
+def copy_meal_handler(update, meal_id):
+    meal = copy_meal(meal_id)
+    logger.info("Copiando comida.")
+    send_meal_created_message(meal, update)
+
+
+def send_meal_created_message(meal_obj, update):
+    message = "Ahí agregué la comida:"
+    for meal_item in meal_obj.mealitem_set.all():
+        message += f"\n\\- {meal_item}"
+
+    update.message.reply_text(
+        message,
+    )
 
 
 COMMANDS_ARGS = [
@@ -204,6 +186,7 @@ COMMANDS_ARGS = [
     ("saltear", skip_handler),
     ("proximas", next_meals_handler),
     ("borrar", delete_meal_handler),
+    ("copiar", copy_meal_handler),
     ("resolver", resolve_meal_handler),
     ("ultimas", previous_meals_handler),
 ]
