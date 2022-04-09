@@ -166,7 +166,7 @@ def resolve_meal_handler(update, meal_id):
 )
 def copy_meal_handler(update, meal_id):
     meal = copy_meal(meal_id)
-    logger.info("Resolviendo comida.")
+    logger.info("Copiando comida.")
     send_meal_created_message(meal, update)
 
 
