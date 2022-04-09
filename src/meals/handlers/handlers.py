@@ -45,6 +45,11 @@ def send_reminder_from_bot(bot):
                 settings.CHAT_ID,
                 "Hola, no hay una comida configurada para mañana, si quieren cenar rico ponganse las pilas\\.",
             )
+        except Exception as e:
+            meal.done = False
+            meal.done_at = None
+            meal.save()
+            raise e
     else:
         logger.info("Salteando recordatorio debido a un skip.")
 
