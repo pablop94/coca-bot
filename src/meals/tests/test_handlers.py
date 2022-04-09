@@ -36,6 +36,22 @@ class HandlerTest(TestCase):
         self.assertEquals(timezone.now().day, mealitem.meal.done_at.day)
 
     @override_settings(CHAT_ID="")
+    def test_send_reminder_send_message_fails_rollback_is_done(self, *args):
+        def fail(*args, **kwargs):
+            raise Exception()
+
+        mealitem = MealItemFactory(owner=ParticipantFactory(name="test name"))
+        MealItemFactory()
+        context = get_mock_context()
+        context.bot.send_message.side_effect = fail
+        with self.assertRaises(Exception):
+            send_reminder(context)
+
+        mealitem.refresh_from_db()
+        self.assertFalse(mealitem.meal.done)
+        self.assertEquals(None, mealitem.meal.done_at)
+
+    @override_settings(CHAT_ID="")
     def test_get_next_meal_returns_first_undone_meal(self):
         MealItemFactory(
             owner=ParticipantFactory(name="test"),
