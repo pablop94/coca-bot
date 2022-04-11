@@ -213,7 +213,7 @@ class HandlerTest(TestCase):
 
     @override_settings(CHAT_ID="")
     def test_send_birthdays_birthdays_today(self, *args):
-        ParticipantFactory(name="test", birthday=timezone.now())
+        ParticipantFactory(name="test", birthday=timezone.now().replace(year=1990))
         ParticipantFactory(name="test2", birthday=timezone.now())
         context = get_mock_context()
         send_birthdays_handler(context)

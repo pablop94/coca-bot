@@ -112,4 +112,5 @@ def copy_meal(meal_id):
 
 
 def get_todays_birthdays():
-    return Participant.objects.filter(birthday=timezone.now())
+    now = timezone.now()
+    return Participant.objects.filter(birthday__month=now.month, birthday__day=now.day)
