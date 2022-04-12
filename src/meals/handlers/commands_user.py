@@ -125,7 +125,7 @@ def previous_meals_handler(update, context):
         logger.info("Enviando últimas 5 comidas.")
         message = "*Las últimas 5 comidas fueron:*"
         for meal in meals:
-            message += format_meal_with_date(meal.done_at, meal)
+            message += format_meal_with_date(meal.done_at + timedelta(days=1), meal)
 
             for meal_item in meal.mealitem_set.all():
                 message += f"\n\t\\- {meal_item}"
