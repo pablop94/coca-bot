@@ -374,11 +374,11 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
         previous_meals_handler(update, context)
 
         update.message.reply_text.assert_called_once_with(
-            f"""*Las últimas 5 comidas fueron:*{format_meal_with_date(meal6.done_at, meal6)}
-\t\\- `test meal6` a cargo de *test name6*{format_meal_with_date(meal5.done_at, meal5)}
-\t\\- `test meal5` a cargo de *test name5*{format_meal_with_date(meal4.done_at, meal4)}
-\t\\- `test meal4` a cargo de *test name4*{format_meal_with_date(meal3.done_at, meal3)}
-\t\\- `test meal3` a cargo de *test name3*{format_meal_with_date(meal2.done_at, meal2)}
+            f"""*Las últimas 5 comidas fueron:*{format_meal_with_date(meal6.done_at + timedelta(days=1), meal6)}
+\t\\- `test meal6` a cargo de *test name6*{format_meal_with_date(meal5.done_at + timedelta(days=1), meal5)}
+\t\\- `test meal5` a cargo de *test name5*{format_meal_with_date(meal4.done_at + timedelta(days=1), meal4)}
+\t\\- `test meal4` a cargo de *test name4*{format_meal_with_date(meal3.done_at + timedelta(days=1), meal3)}
+\t\\- `test meal3` a cargo de *test name3*{format_meal_with_date(meal2.done_at + timedelta(days=1), meal2)}
 \t\\- `test meal2` a cargo de *test name2*""",
         )
 
