@@ -230,3 +230,19 @@ class HandlerTest(TestCase):
                 ),
             ]
         )
+
+    @override_settings(CHAT_ID="")
+    def test_send_birthdays_birthdays_none(self, *args):
+        ParticipantFactory(name="test")
+        ParticipantFactory(name="test2", birthday=timezone.now())
+        context = get_mock_context()
+        send_birthdays_handler(context)
+
+        context.bot.send_message.assert_has_calls(
+            [
+                call(
+                    "",
+                    "Feliz cumple test2\\!\\! La próxima tenes que llevar flan\\.",
+                ),
+            ]
+        )

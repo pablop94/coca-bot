@@ -32,7 +32,7 @@ def cleanup_jobs(update: Update, jobs):
             repeated_jobs.add(job.name)
             job.schedule_removal()
         current_jobs.add(job.name)
-    repeated_jobs = sorted(repeated_jobs)
+    current_jobs = sorted(current_jobs)
     message = f"- Los jobs son: {', '.join(current_jobs)}.\n\n" + (
         f"- Jobs repetidos: {', '.join(repeated_jobs)}"
         if repeated_jobs

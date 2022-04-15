@@ -30,15 +30,15 @@ class AdminCommandsTest(TestCase):
         context = get_mock_context()
         update = get_mock_update()
         job1 = MagicMock()
-        job1.name = "ajob"
+        job1.name = "job1"
         job2 = MagicMock()
-        job2.name = "bjob"
+        job2.name = "job2"
         context.job_queue = MagicMock()
         context.job_queue.jobs = MagicMock(return_value=[job1, job2])
         cleanup_jobs_handler(update, context)
 
         update.message.reply_text.assert_called_once_with(
-            "- Los jobs son: ajob, bjob.\n\nNo hay jobs repetidos.",
+            "- Los jobs son: job1, job2.\n\nNo hay jobs repetidos.",
             parse_mode=None,
         )
 
