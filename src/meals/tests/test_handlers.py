@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from unittest.mock import call, MagicMock
@@ -7,6 +8,7 @@ from meals.handlers import (
     send_reminder,
     send_history_resume,
     reply_to_coca_handler,
+    send_birthdays_handler,
 )
 from meals.tests.factories import (
     MealFactory,
@@ -192,4 +194,55 @@ class HandlerTest(TestCase):
         context.bot.send_message.assert_called_once_with(
             "",
             "Hola, les dejo el resumen del histórico de compras: \n\n\\- *test2* compró para `2` comidas\\.\n\\- *test* compró para `1` comida\\.",
+        )
+
+    @override_settings(CHAT_ID="")
+    def test_send_birthdays_without_participants(self, *args):
+        context = get_mock_context()
+        send_birthdays_handler(context)
+
+        context.bot.send_message.assert_not_called()
+
+    @override_settings(CHAT_ID="")
+    def test_send_birthdays_no_birthdays_today(self, *args):
+        ParticipantFactory(name="test", birthday=timezone.now() - timedelta(days=5))
+        context = get_mock_context()
+        send_birthdays_handler(context)
+
+        context.bot.send_message.assert_not_called()
+
+    @override_settings(CHAT_ID="")
+    def test_send_birthdays_birthdays_today(self, *args):
+        ParticipantFactory(name="test", birthday=timezone.now().replace(year=1990))
+        ParticipantFactory(name="test2", birthday=timezone.now())
+        context = get_mock_context()
+        send_birthdays_handler(context)
+
+        context.bot.send_message.assert_has_calls(
+            [
+                call(
+                    "",
+                    "Feliz cumple test\\!\\! La próxima tenes que llevar flan\\.",
+                ),
+                call(
+                    "",
+                    "Feliz cumple test2\\!\\! La próxima tenes que llevar flan\\.",
+                ),
+            ]
+        )
+
+    @override_settings(CHAT_ID="")
+    def test_send_birthdays_birthdays_none(self, *args):
+        ParticipantFactory(name="test")
+        ParticipantFactory(name="test2", birthday=timezone.now())
+        context = get_mock_context()
+        send_birthdays_handler(context)
+
+        context.bot.send_message.assert_has_calls(
+            [
+                call(
+                    "",
+                    "Feliz cumple test2\\!\\! La próxima tenes que llevar flan\\.",
+                ),
+            ]
         )

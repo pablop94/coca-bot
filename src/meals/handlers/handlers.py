@@ -8,7 +8,7 @@ from meals.exceptions import NoMealConfigured
 from meals.graphs import send_history_chart
 from meals.handlers.commands_user import get_history
 from meals.formatters import format_meal, format_name
-from meals.views import get_next_meal, get_skip
+from meals.views import get_next_meal, get_skip, get_todays_birthdays
 from telegram import ParseMode, Update
 from telegram.ext import CallbackContext
 
@@ -96,3 +96,13 @@ def reply_to_coca_handler(update: Update, context: CallbackContext):
         settings.TELEGRAM_TOKEN.split(":")[0]
     ):
         update.message.reply_text("Soy una entidad virtual, no me contestes\\.")
+
+
+def send_birthdays_handler(context: CallbackContext):
+    today_birthdays = get_todays_birthdays()
+
+    for birthday in today_birthdays:
+        context.bot.send_message(
+            settings.CHAT_ID,
+            f"Feliz cumple {birthday.name}\\!\\! La próxima tenes que llevar flan\\.",
+        )

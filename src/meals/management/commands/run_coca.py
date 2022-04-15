@@ -7,6 +7,7 @@ from meals.handlers import (
     REACTIONS,
     error_handler,
     reply_to_coca_handler,
+    send_birthdays_handler,
 )
 from telegram import ParseMode
 from telegram.ext import Updater, MessageHandler, Defaults
@@ -54,6 +55,11 @@ def start_bot():
         send_history_resume,
         when=datetime.time(hour=hour, minute=minute),
         day=history_day,
+    )
+
+    updater.job_queue.run_daily(
+        send_birthdays_handler,
+        time=datetime.time(hour=hour, minute=minute),
     )
 
     add_handlers(updater.dispatcher)

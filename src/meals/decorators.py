@@ -37,18 +37,9 @@ def chat_id_required(read_only=False):
 
 
 def developer_chat_id_required(fn):
-    fnname = get_handler_name(fn.__name__)
-
     def inner(update, context):
         if update.message.chat.id == settings.DEVELOPER_CHAT_ID:
             fn(update, context)
-        else:
-            logger.warning(
-                f"Recibido <{fnname}> desde un chat no configurado: {update.message.chat.id}."
-            )
-            update.message.reply_photo(
-                "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
-            )
 
     return inner
 

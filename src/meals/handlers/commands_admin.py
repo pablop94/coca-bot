@@ -1,5 +1,4 @@
 import logging
-from django.conf import settings
 from meals.decorators import developer_chat_id_required
 from telegram import Update
 from telegram.ext import CallbackContext
@@ -19,10 +18,10 @@ def get_jobs_handler(update: Update, context: CallbackContext):
 
 @developer_chat_id_required
 def cleanup_jobs_handler(update: Update, context: CallbackContext):
-    cleanup_jobs(context.bot, context.job_queue.jobs())
+    cleanup_jobs(update, context.job_queue.jobs())
 
 
-def cleanup_jobs(bot, jobs):
+def cleanup_jobs(update: Update, jobs):
     logger.info("Starting jobs cleanup")
 
     current_jobs = set()
@@ -33,17 +32,16 @@ def cleanup_jobs(bot, jobs):
             repeated_jobs.add(job.name)
             job.schedule_removal()
         current_jobs.add(job.name)
-
+    current_jobs = sorted(current_jobs)
     message = f"- Los jobs son: {', '.join(current_jobs)}.\n\n" + (
         f"- Jobs repetidos: {', '.join(repeated_jobs)}"
         if repeated_jobs
         else "No hay jobs repetidos."
     )
-    bot.send_message(settings.DEVELOPER_CHAT_ID, text=message, parse_mode=None)
+    update.message.reply_text(message, parse_mode=None)
     if repeated_jobs:
-        bot.send_message(
-            settings.DEVELOPER_CHAT_ID,
-            text="Los jobs repetidos se marcaron para borrar.",
+        update.message.reply_text(
+            "Los jobs repetidos se marcaron para borrar.",
             parse_mode=None,
         )
 

@@ -1,6 +1,7 @@
 import random
 from django.db import transaction
 from django.db.models import Count
+from django.utils import timezone
 from meals.exceptions import NoMealConfigured
 from meals.models import Meal, MealItem, Participant, Skip
 
@@ -108,3 +109,8 @@ def copy_meal(meal_id):
     MealItem.objects.bulk_create(new_items)
 
     return new_meal
+
+
+def get_todays_birthdays():
+    now = timezone.now()
+    return Participant.objects.filter(birthday__month=now.month, birthday__day=now.day)
