@@ -3,7 +3,7 @@ import logging
 
 from django.conf import settings
 
-from meals.models import Meal
+from meals.models import Meal, CocaSettings
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ def developer_chat_id_required(fn):
 
 def random_run(fn):
     def inner(*args, **kwargs):
-        if random.randint(1, 100) <= settings.RANDOM_RUN_PROBABILITY:
+        if random.randint(1, 100) <= CocaSettings.instance().random_run_probability:
             fn(*args, **kwargs)
 
     return inner

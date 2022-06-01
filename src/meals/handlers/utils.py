@@ -1,12 +1,11 @@
 from datetime import timedelta
 from django.utils import timezone
-from django.conf import settings
 
 
-def get_next_meal_date():
+def get_next_meal_date(reminder_day):
     now = timezone.now()
     today = now.weekday()
-    meal_day = settings.REMINDER_DAY + 1
+    meal_day = reminder_day + 1
     if today > meal_day:
         days_offset = 7 - (today - meal_day)
     else:

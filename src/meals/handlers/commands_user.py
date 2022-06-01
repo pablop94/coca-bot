@@ -4,7 +4,7 @@ from meals.decorators import chat_id_required, meal_id_required
 from meals.exceptions import IncompleteMeal
 from meals.graphs import send_history_chart
 from meals.handlers.utils import get_next_meal_date
-from meals.models import Participant
+from meals.models import Participant, CocaSettings
 from meals.formatters import format_name, format_meal_with_date
 from meals.views import (
     add_meal,
@@ -101,7 +101,8 @@ def next_meals_handler(update, context):
     meals = get_next_meals()
 
     if meals:
-        next_date = get_next_meal_date()
+        reminder_day = CocaSettings.instance().reminder_day
+        next_date = get_next_meal_date(reminder_day)
         logger.info("Enviando proximas comidas.")
         message = "*Las próximas comidas son:*"
         for meal in meals:

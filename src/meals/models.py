@@ -44,3 +44,7 @@ class CocaSettings(models.Model):
     reminder_day = models.PositiveSmallIntegerField()
     history_resume_day = models.PositiveSmallIntegerField()
     random_run_probability = models.PositiveSmallIntegerField()
+
+    @classmethod
+    def instance(cls):
+        return cls.objects.first()
