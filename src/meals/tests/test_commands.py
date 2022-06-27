@@ -514,3 +514,14 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
 
         setting.refresh_from_db()
         setting.reminder_day == 0
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder_invalid_day(self, *args):
+        context = get_mock_context(["test"])
+        update = get_mock_update()
+
+        change_reminder_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "test no es un día válido\\.",
+        )

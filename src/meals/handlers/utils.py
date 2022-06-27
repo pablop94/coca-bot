@@ -2,6 +2,16 @@ import calendar
 from datetime import timedelta
 from django.utils import timezone
 
+DAYS = {
+    "lunes": calendar.MONDAY,
+    "martes": calendar.TUESDAY,
+    "miercoles": calendar.WEDNESDAY,
+    "jueves": calendar.THURSDAY,
+    "viernes": calendar.FRIDAY,
+    "sabado": calendar.SATURDAY,
+    "domingo": calendar.SUNDAY,
+}
+
 
 def get_next_meal_date(reminder_day):
     now = timezone.now()
@@ -15,14 +25,4 @@ def get_next_meal_date(reminder_day):
 
 
 def get_day_from_name(day_name):
-    days = {
-        "lunes": calendar.MONDAY,
-        "martes": calendar.TUESDAY,
-        "miercoles": calendar.WEDNESDAY,
-        "jueves": calendar.THURSDAY,
-        "viernes": calendar.FRIDAY,
-        "sabado": calendar.SATURDAY,
-        "domingo": calendar.SUNDAY,
-    }
-
-    return days[day_name]
+    return DAYS[day_name]

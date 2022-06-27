@@ -6,3 +6,7 @@ class NoMealConfigured(Exception):
 class IncompleteMeal(Exception):
     def __init__(self, message):
         self.message = message
+
+
+class InvalidDay(Exception):
+    pass

@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 from meals.decorators import chat_id_required, meal_id_required
-from meals.exceptions import IncompleteMeal
+from meals.exceptions import IncompleteMeal, InvalidDay
 from meals.graphs import send_history_chart
 from meals.handlers.utils import get_next_meal_date, get_day_from_name
 from meals.models import Participant, CocaSettings
@@ -169,14 +169,19 @@ def send_meal_created_message(meal_obj, update):
 @chat_id_required()
 def change_reminder_handler(update, context):
     setting = CocaSettings.instance()
-    day_name = parse_weekday_name(context.args[0])
-    setting.reminder_day = get_day_from_name(day_name)
+    try:
+        day_name = parse_weekday_name(context.args[0])
+        setting.reminder_day = get_day_from_name(day_name)
 
-    setting.save()
+        setting.save()
 
-    update.message.reply_text(
-        f"Se actualizó el día del recordatorio al día {day_name}\\."
-    )
+        update.message.reply_text(
+            f"Se actualizó el día del recordatorio al día {day_name}\\."
+        )
+
+    except InvalidDay:
+        invalid_day = context.args[0]
+        update.message.reply_text(f"{invalid_day} no es un día válido\\.")
 
 
 COMMANDS_ARGS = [
