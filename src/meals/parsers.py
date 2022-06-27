@@ -1,4 +1,4 @@
-from meals.exceptions import IncompleteMeal, InvalidDay
+from meals.exceptions import IncompleteMeal, InvalidDay, NoDayReceived
 from meals.handlers.utils import DAYS
 
 
@@ -18,7 +18,11 @@ def parse_add_meal_args(args):
     return parsed_meals
 
 
-def parse_weekday_name(name):
+def parse_weekday_name(args):
+    if len(args) == 0:
+        raise NoDayReceived()
+
+    name = args[0]
     parsed = name.lower()
     if parsed not in DAYS:
         raise InvalidDay()

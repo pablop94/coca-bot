@@ -10,3 +10,7 @@ class IncompleteMeal(Exception):
 
 class InvalidDay(Exception):
     pass
+
+
+class NoDayReceived(Exception):
+    pass

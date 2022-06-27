@@ -525,3 +525,14 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
         update.message.reply_text.assert_called_once_with(
             "test no es un día válido\\.",
         )
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder_without_day(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+
+        change_reminder_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "Necesito un día para asignar el recordatorio: lunes por ejemplo\\.",
+        )
