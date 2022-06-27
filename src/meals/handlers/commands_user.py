@@ -3,7 +3,7 @@ from datetime import timedelta
 from meals.decorators import chat_id_required, meal_id_required
 from meals.exceptions import IncompleteMeal
 from meals.graphs import send_history_chart
-from meals.handlers.utils import get_next_meal_date
+from meals.handlers.utils import get_next_meal_date, get_day_from_name
 from meals.models import Participant, CocaSettings
 from meals.formatters import format_name, format_meal_with_date
 from meals.views import (
@@ -178,6 +178,19 @@ def send_meal_created_message(meal_obj, update):
 
     update.message.reply_text(
         message,
+    )
+
+
+@chat_id_required()
+def change_reminder_handler(update, context):
+    setting = CocaSettings.instance()
+    day_name = context.args[0]
+    setting.reminder_day = get_day_from_name(day_name)
+
+    setting.save()
+
+    update.message.reply_text(
+        f"Se actualizó el día del recordatorio al día {day_name}\\."
     )
 
 

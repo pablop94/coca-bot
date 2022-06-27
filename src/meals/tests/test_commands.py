@@ -13,10 +13,16 @@ from meals.handlers import (
     delete_meal_handler,
     resolve_meal_handler,
     previous_meals_handler,
+    change_reminder_handler,
 )
 from meals.models import Meal, MealItem, Participant, Skip
 from meals.tests.base import get_mock_context, get_mock_update
-from meals.tests.factories import MealFactory, MealItemFactory, ParticipantFactory
+from meals.tests.factories import (
+    MealFactory,
+    MealItemFactory,
+    ParticipantFactory,
+    CocaSettingsFactory,
+)
 
 
 class CommandsTest(TestCase):
@@ -480,3 +486,17 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
         update.message.reply_photo.assert_called_once_with(
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder(self, *args):
+        setting = CocaSettingsFactory(reminder_day=2)
+        context = get_mock_context(["lunes"])
+        update = get_mock_update()
+        change_reminder_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "Se actualizó el día del recordatorio al día lunes\\.",
+        )
+
+        setting.refresh_from_db()
+        setting.reminder_day == 0
