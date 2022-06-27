@@ -15,6 +15,12 @@ def get_handler_name(name):
 
 
 def chat_id_required(read_only=False):
+    """
+    Marca una función como que requiere chat id. Puede ser CHAT_ID o DEVELOPER_CHAT_ID.
+
+    :param bool read_only: Especifica si el comando se puede correr desde otro chat que no sea el configurado. Deberia ser True si el comando no modifica informacion.
+    """
+
     def decorator(fn):
         fnname = get_handler_name(fn.__name__)
 
