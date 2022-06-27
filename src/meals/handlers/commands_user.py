@@ -6,6 +6,7 @@ from meals.graphs import send_history_chart
 from meals.handlers.utils import get_next_meal_date, get_day_from_name
 from meals.models import Participant, CocaSettings
 from meals.formatters import format_name, format_meal_with_date
+from meals.parsers import parse_add_meal_args, parse_weekday_name
 from meals.views import (
     add_meal,
     history,
@@ -19,22 +20,6 @@ from meals.views import (
 
 
 logger = logging.getLogger(__name__)
-
-
-def parse_add_meal_args(args):
-    message = " ".join(args)
-
-    meals = message.split(",")
-    parsed_meals = []
-    for meal in meals:
-        meal = meal.strip()
-        owner, *meal_elements = meal.split(" ")
-        if not meal_elements:
-            raise IncompleteMeal(meal)
-
-        parsed_meals.append((owner, " ".join(meal_elements)))
-
-    return parsed_meals
 
 
 @chat_id_required()
@@ -184,7 +169,7 @@ def send_meal_created_message(meal_obj, update):
 @chat_id_required()
 def change_reminder_handler(update, context):
     setting = CocaSettings.instance()
-    day_name = context.args[0]
+    day_name = parse_weekday_name(context.args[0])
     setting.reminder_day = get_day_from_name(day_name)
 
     setting.save()
