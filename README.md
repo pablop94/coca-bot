@@ -30,6 +30,8 @@ Se pueden agregar varias comidas enviando:
 
 `/copiar [id]` Con este comando Coca copia la comida con `id` con nuevas asignaciones.
 
+`/recordatorio [lunes|martes|miercoles...]` Con este comando Coca cambia el día del recordatorio.
+
 ## Variables de ambiente
 - `CHAT_ID` el chat donde se enviará el recordatorio.
 - `DEVELOPER_CHAT_ID` el chat donde se enviarán errores en caso de haberlos.
