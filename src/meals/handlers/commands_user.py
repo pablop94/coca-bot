@@ -173,23 +173,30 @@ def change_reminder_handler(update, context):
     setting = CocaSettings.instance()
     try:
         day_name = parse_weekday_name(context.args)
-        setting.reminder_day = get_day_from_name(day_name)
+        new_day = get_day_from_name(day_name)
+        if setting.reminder_day != new_day:
+            setting.reminder_day = new_day
 
-        setting.save()
+            setting.save()
 
-        job_queue = context.job_queue
+            job_queue = context.job_queue
 
-        job_queue.get_jobs_by_name("send_reminder")[0].schedule_removal()
-        register_send_reminder_daily(
-            job_queue,
-            setting.reminder_day,
-            setting.reminder_hour_utc,
-            0 if not settings.DEBUG else datetime.now().minute + 1,
-        )
+            job_queue.get_jobs_by_name("send_reminder")[0].schedule_removal()
+            register_send_reminder_daily(
+                job_queue,
+                setting.reminder_day,
+                setting.reminder_hour_utc,
+                0 if not settings.DEBUG else datetime.now().minute + 1,
+            )
 
-        update.message.reply_text(
-            f"Se actualizó el día del recordatorio al día {day_name}\\."
-        )
+            update.message.reply_text(
+                f"Se actualizó el día del recordatorio al día {day_name}\\."
+            )
+        else:
+
+            update.message.reply_text(
+                f"El recordatorio ya estaba configurado para el día {day_name}\\."
+            )
 
     except NoDayReceived:
         update.message.reply_text(
