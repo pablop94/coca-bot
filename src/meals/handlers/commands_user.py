@@ -197,4 +197,5 @@ COMMANDS_ARGS = [
     ("copiar", copy_meal_handler),
     ("resolver", resolve_meal_handler),
     ("ultimas", previous_meals_handler),
+    ("recordatorio", change_reminder_handler),
 ]
