@@ -21,7 +21,6 @@ from meals.tests.factories import (
     MealFactory,
     MealItemFactory,
     ParticipantFactory,
-    CocaSettingsFactory,
 )
 
 
@@ -489,7 +488,9 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
 
     @override_settings(CHAT_ID=1)
     def test_change_reminder(self, *args):
-        setting = CocaSettingsFactory(reminder_day=2)
+        setting = CocaSettings.instance()
+        setting.reminder_day = 2
+        setting.save()
         context = get_mock_context(["lunes"])
         update = get_mock_update()
         change_reminder_handler(update, context)
@@ -503,7 +504,9 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
 
     @override_settings(CHAT_ID=1)
     def test_change_reminder_uppercase_day(self, *args):
-        setting = CocaSettingsFactory(reminder_day=2)
+        setting = CocaSettings.instance()
+        setting.reminder_day = 2
+        setting.save()
         context = get_mock_context(["luNes"])
         update = get_mock_update()
         change_reminder_handler(update, context)

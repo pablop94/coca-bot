@@ -1,6 +1,6 @@
 import factory
 from datetime import datetime
-from meals.models import Meal, MealItem, Participant, Skip, CocaSettings
+from meals.models import Meal, MealItem, Participant, Skip
 
 
 class ParticipantFactory(factory.django.DjangoModelFactory):
@@ -31,12 +31,3 @@ class MealItemFactory(factory.django.DjangoModelFactory):
 class SkipFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Skip
-
-
-class CocaSettingsFactory(factory.django.DjangoModelFactory):
-    reminder_hour_utc = 0
-    history_resume_day = 0
-    random_run_probability = 0
-
-    class Meta:
-        model = CocaSettings
