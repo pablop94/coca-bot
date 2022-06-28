@@ -3,7 +3,7 @@ import logging
 
 from django.conf import settings
 
-from meals.models import Meal
+from meals.models import Meal, CocaSettings
 
 
 logger = logging.getLogger(__name__)
@@ -15,6 +15,12 @@ def get_handler_name(name):
 
 
 def chat_id_required(read_only=False):
+    """
+    Marca una función como que requiere chat id. Puede ser CHAT_ID o DEVELOPER_CHAT_ID.
+
+    :param bool read_only: Especifica si el comando se puede correr desde otro chat que no sea el configurado. Deberia ser True si el comando no modifica informacion.
+    """
+
     def decorator(fn):
         fnname = get_handler_name(fn.__name__)
 
@@ -46,7 +52,7 @@ def developer_chat_id_required(fn):
 
 def random_run(fn):
     def inner(*args, **kwargs):
-        if random.randint(1, 100) <= settings.RANDOM_RUN_PROBABILITY:
+        if random.randint(1, 100) <= CocaSettings.instance().random_run_probability:
             fn(*args, **kwargs)
 
     return inner

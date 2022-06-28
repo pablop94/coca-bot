@@ -37,3 +37,14 @@ class Participant(models.Model):
 
 class Skip(models.Model):
     pass
+
+
+class CocaSettings(models.Model):
+    reminder_hour_utc = models.PositiveSmallIntegerField()
+    reminder_day = models.PositiveSmallIntegerField()
+    history_resume_day = models.PositiveSmallIntegerField()
+    random_run_probability = models.PositiveSmallIntegerField()
+
+    @classmethod
+    def instance(cls):
+        return cls.objects.first()

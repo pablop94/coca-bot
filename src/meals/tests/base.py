@@ -30,5 +30,6 @@ def get_mock_context(args=[]):
             self.args = args
             self.bot.send_message = MagicMock()
             self.bot.send_photo = MagicMock()
+            self.job_queue = MagicMock()
 
     return MockContext()

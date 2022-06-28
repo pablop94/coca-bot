@@ -2,8 +2,15 @@
 
 La coca es un bot que nace para recordarnos a un grupo de amigues quienes tienen que hacer las compras para las juntadas.
 
+## Modelo de configuración
+El modelo `CocaSettings` contiene los siguientes atributos:
+- `reminder_hour_utc` la hora a la que se envía el recordatorio en UTC.
+- `reminder_day` el día en que se envía el recordatorio, 0 es lunes, 6 es domingo.
+- `history_resume_day` el día del mes donde se envía el histórico de compras. Por defecto es 31 y si el mes no tiene 31, se envía el último día.
+- `random_run_probability` la probabilidad de que la coca envíe respuestas de audio. Por defecto es 50%.
+
 ## Comandos
-`/agregar nombre comida[, nombre2 comida2...]` Con este comando agregamos una comida a la lista. Se enviará un recordatorio el día `REMINDER_DAY` a las `REMINDER_HOUR_UTC` en punto, teniendo en cuenta el orden en el que fueron ingresadas.
+`/agregar nombre comida[, nombre2 comida2...]` Con este comando agregamos una comida a la lista. Se enviará un recordatorio el día `reminder_day` a las `reminder_hour_utc` en punto, teniendo en cuenta el orden en el que fueron ingresadas.
 Se pueden agregar varias comidas enviando: 
 ```
 /agregar nombre1 comida1, nombre2 comida2,nombre3 comida con muchas palabras
@@ -27,10 +34,6 @@ Se pueden agregar varias comidas enviando:
 - `CHAT_ID` el chat donde se enviará el recordatorio.
 - `DEVELOPER_CHAT_ID` el chat donde se enviarán errores en caso de haberlos.
 - `TELEGRAM_TOKEN` el token del bot de Telegram.
-- `REMINDER_HOUR_UTC` la hora a la que se envía el recordatorio en UTC.
-- `REMINDER_DAY` el día en que se envía el recordatorio, 0 es lunes, 6 es domingo.
-- `HISTORY_RESUME_DAY` el día del mes donde se envía el histórico de compras. Por defecto es 31 y si el mes no tiene 31, se envía el último día.
-- `RANDOM_RUN_PROBABILITY` la probabilidad de que la coca envíe respuestas de audio. Por defecto es 50%.
 
 ## Ejecución
 Estando en la carpeta `src`:

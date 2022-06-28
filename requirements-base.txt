@@ -1,0 +1,4 @@
+python-telegram-bot==13.11.0
+Django==4.0.4
+matplotlib==3.5.1
+django-environ==0.8.1

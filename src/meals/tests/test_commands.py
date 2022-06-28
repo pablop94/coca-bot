@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
@@ -13,10 +13,15 @@ from meals.handlers import (
     delete_meal_handler,
     resolve_meal_handler,
     previous_meals_handler,
+    change_reminder_handler,
 )
-from meals.models import Meal, MealItem, Participant, Skip
+from meals.models import Meal, MealItem, Participant, Skip, CocaSettings
 from meals.tests.base import get_mock_context, get_mock_update
-from meals.tests.factories import MealFactory, MealItemFactory, ParticipantFactory
+from meals.tests.factories import (
+    MealFactory,
+    MealItemFactory,
+    ParticipantFactory,
+)
 
 
 class CommandsTest(TestCase):
@@ -480,3 +485,101 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
         update.message.reply_photo.assert_called_once_with(
             "https://pbs.twimg.com/media/E8ozthsWQAMproa.jpg"
         )
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder(self, *args):
+        setting = CocaSettings.instance()
+        setting.reminder_day = 2
+        setting.save()
+        context = get_mock_context(["lunes"])
+        update = get_mock_update()
+        change_reminder_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "Se actualizó el día del recordatorio al día lunes\\.",
+        )
+
+        setting.refresh_from_db()
+        setting.reminder_day == 0
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder_uppercase_day(self, *args):
+        setting = CocaSettings.instance()
+        setting.reminder_day = 2
+        setting.save()
+        context = get_mock_context(["luNes"])
+        update = get_mock_update()
+        change_reminder_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "Se actualizó el día del recordatorio al día lunes\\.",
+        )
+
+        setting.refresh_from_db()
+        setting.reminder_day == 0
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder_invalid_day(self, *args):
+        context = get_mock_context(["test"])
+        update = get_mock_update()
+
+        change_reminder_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "test no es un día válido\\.",
+        )
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder_without_day(self, *args):
+        context = get_mock_context()
+        update = get_mock_update()
+
+        change_reminder_handler(update, context)
+
+        update.message.reply_text.assert_called_once_with(
+            "Necesito un día para asignar el recordatorio: lunes por ejemplo\\.",
+        )
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder_removes_current_job(self, *args):
+        context = get_mock_context(["jueves"])
+        job = MagicMock()
+        job.schedule_removal = MagicMock()
+        context.job_queue.get_jobs_by_name.return_value = (job,)
+        update = get_mock_update()
+
+        with patch(
+            "meals.handlers.commands_user.register_send_reminder_daily"
+        ) as register_mock:
+
+            change_reminder_handler(update, context)
+            setting = CocaSettings.instance()
+
+            register_mock.assert_called_once_with(
+                context.job_queue, setting.reminder_day, setting.reminder_hour_utc, 0
+            )
+            job.schedule_removal.assert_called_once()
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder_to_the_same_day_does_not_reschedules_job(self, *args):
+        setting = CocaSettings.instance()
+        setting.reminder_day = 2
+        setting.save()
+
+        context = get_mock_context(["miercoles"])
+        job = MagicMock()
+        job.schedule_removal = MagicMock()
+        context.job_queue.get_jobs_by_name.return_value = (job,)
+        update = get_mock_update()
+
+        with patch(
+            "meals.handlers.commands_user.register_send_reminder_daily"
+        ) as register_mock:
+
+            change_reminder_handler(update, context)
+
+            register_mock.assert_not_called()
+            job.schedule_removal.assert_not_called()
+            update.message.reply_text.assert_called_once_with(
+                "El recordatorio ya estaba configurado para el día miercoles\\."
+            )

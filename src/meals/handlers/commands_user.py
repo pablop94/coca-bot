@@ -1,11 +1,14 @@
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
+from django.conf import settings
 from meals.decorators import chat_id_required, meal_id_required
-from meals.exceptions import IncompleteMeal
+from meals.exceptions import IncompleteMeal, InvalidDay, NoDayReceived
 from meals.graphs import send_history_chart
-from meals.handlers.utils import get_next_meal_date
-from meals.models import Participant
+from meals.handlers.utils import get_next_meal_date, get_day_from_name
+from meals.jobs import register_send_reminder_daily
+from meals.models import Participant, CocaSettings
 from meals.formatters import format_name, format_meal_with_date
+from meals.parsers import parse_add_meal_args, parse_weekday_name
 from meals.views import (
     add_meal,
     history,
@@ -19,22 +22,6 @@ from meals.views import (
 
 
 logger = logging.getLogger(__name__)
-
-
-def parse_add_meal_args(args):
-    message = " ".join(args)
-
-    meals = message.split(",")
-    parsed_meals = []
-    for meal in meals:
-        meal = meal.strip()
-        owner, *meal_elements = meal.split(" ")
-        if not meal_elements:
-            raise IncompleteMeal(meal)
-
-        parsed_meals.append((owner, " ".join(meal_elements)))
-
-    return parsed_meals
 
 
 @chat_id_required()
@@ -101,7 +88,8 @@ def next_meals_handler(update, context):
     meals = get_next_meals()
 
     if meals:
-        next_date = get_next_meal_date()
+        reminder_day = CocaSettings.instance().reminder_day
+        next_date = get_next_meal_date(reminder_day)
         logger.info("Enviando proximas comidas.")
         message = "*Las próximas comidas son:*"
         for meal in meals:
@@ -180,6 +168,45 @@ def send_meal_created_message(meal_obj, update):
     )
 
 
+@chat_id_required()
+def change_reminder_handler(update, context):
+    setting = CocaSettings.instance()
+    try:
+        day_name = parse_weekday_name(context.args)
+        new_day = get_day_from_name(day_name)
+        if setting.reminder_day != new_day:
+            setting.reminder_day = new_day
+
+            setting.save()
+
+            job_queue = context.job_queue
+
+            job_queue.get_jobs_by_name("send_reminder")[0].schedule_removal()
+            register_send_reminder_daily(
+                job_queue,
+                setting.reminder_day,
+                setting.reminder_hour_utc,
+                0 if not settings.DEBUG else datetime.now().minute + 1,
+            )
+
+            update.message.reply_text(
+                f"Se actualizó el día del recordatorio al día {day_name}\\."
+            )
+        else:
+
+            update.message.reply_text(
+                f"El recordatorio ya estaba configurado para el día {day_name}\\."
+            )
+
+    except NoDayReceived:
+        update.message.reply_text(
+            "Necesito un día para asignar el recordatorio: lunes por ejemplo\\."
+        )
+    except InvalidDay:
+        invalid_day = context.args[0]
+        update.message.reply_text(f"{invalid_day} no es un día válido\\.")
+
+
 COMMANDS_ARGS = [
     ("agregar", add_meal_handler),
     ("historial", history_handler),
@@ -189,4 +216,5 @@ COMMANDS_ARGS = [
     ("copiar", copy_meal_handler),
     ("resolver", resolve_meal_handler),
     ("ultimas", previous_meals_handler),
+    ("recordatorio", change_reminder_handler),
 ]
