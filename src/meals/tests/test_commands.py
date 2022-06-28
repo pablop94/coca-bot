@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
@@ -15,7 +15,7 @@ from meals.handlers import (
     previous_meals_handler,
     change_reminder_handler,
 )
-from meals.models import Meal, MealItem, Participant, Skip
+from meals.models import Meal, MealItem, Participant, Skip, CocaSettings
 from meals.tests.base import get_mock_context, get_mock_update
 from meals.tests.factories import (
     MealFactory,
@@ -536,3 +536,39 @@ martes 19 de abril _\\(id: {meal2.id}\\)_
         update.message.reply_text.assert_called_once_with(
             "Necesito un día para asignar el recordatorio: lunes por ejemplo\\.",
         )
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder_reschedules_job(self, *args):
+        context = get_mock_context(["jueves"])
+        update = get_mock_update()
+
+        with patch(
+            "meals.handlers.commands_user.register_send_reminder_daily"
+        ) as register_mock:
+
+            change_reminder_handler(update, context)
+            setting = CocaSettings.instance()
+
+            register_mock.assert_called_once_with(
+                context.job_queue, setting.reminder_day, setting.reminder_hour_utc, 0
+            )
+
+    @override_settings(CHAT_ID=1)
+    def test_change_reminder_removes_current_job(self, *args):
+        context = get_mock_context(["jueves"])
+        job = MagicMock()
+        job.schedule_removal = MagicMock()
+        context.job_queue.get_jobs_by_name.return_value = (job,)
+        update = get_mock_update()
+
+        with patch(
+            "meals.handlers.commands_user.register_send_reminder_daily"
+        ) as register_mock:
+
+            change_reminder_handler(update, context)
+            setting = CocaSettings.instance()
+
+            register_mock.assert_called_once_with(
+                context.job_queue, setting.reminder_day, setting.reminder_hour_utc, 0
+            )
+            job.schedule_removal.assert_called_once()

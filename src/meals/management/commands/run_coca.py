@@ -1,7 +1,6 @@
 import datetime
 from django.conf import settings
 from meals.handlers import (
-    send_reminder,
     send_history_resume,
     COMMANDS,
     REACTIONS,
@@ -9,6 +8,7 @@ from meals.handlers import (
     reply_to_coca_handler,
     send_birthdays_handler,
 )
+from meals.jobs import register_send_reminder_daily
 from meals.models import CocaSettings
 from telegram import ParseMode
 from telegram.ext import Updater, MessageHandler, Defaults
@@ -46,11 +46,7 @@ def start_bot():
     day = coca_settings.reminder_day
     hour = coca_settings.reminder_hour_utc
     minute = 0 if not settings.DEBUG else datetime.datetime.now().minute + 1
-    updater.job_queue.run_daily(
-        send_reminder,
-        time=datetime.time(hour=hour, minute=minute),
-        days=(day,),
-    )
+    register_send_reminder_daily(updater.job_queue, day, hour, minute)
 
     history_day = coca_settings.history_resume_day
     updater.job_queue.run_monthly(

@@ -1,9 +1,11 @@
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
+from django.conf import settings
 from meals.decorators import chat_id_required, meal_id_required
 from meals.exceptions import IncompleteMeal, InvalidDay, NoDayReceived
 from meals.graphs import send_history_chart
 from meals.handlers.utils import get_next_meal_date, get_day_from_name
+from meals.jobs import register_send_reminder_daily
 from meals.models import Participant, CocaSettings
 from meals.formatters import format_name, format_meal_with_date
 from meals.parsers import parse_add_meal_args, parse_weekday_name
@@ -174,6 +176,16 @@ def change_reminder_handler(update, context):
         setting.reminder_day = get_day_from_name(day_name)
 
         setting.save()
+
+        job_queue = context.job_queue
+
+        job_queue.get_jobs_by_name("send_reminder")[0].schedule_removal()
+        register_send_reminder_daily(
+            job_queue,
+            setting.reminder_day,
+            setting.reminder_hour_utc,
+            0 if not settings.DEBUG else datetime.now().minute + 1,
+        )
 
         update.message.reply_text(
             f"Se actualizó el día del recordatorio al día {day_name}\\."
