@@ -1,12 +1,12 @@
 import logging
-from meals.decorators import developer_chat_id_required
+from meals.decorators import chat_id_required
 from telegram import Update
 from telegram.ext import CallbackContext
 
 logger = logging.getLogger(__name__)
 
 
-@developer_chat_id_required
+@chat_id_required(allow_admin_run=True, allow_user_run=False)
 def get_jobs_handler(update: Update, context: CallbackContext):
 
     jobs = []
@@ -16,7 +16,7 @@ def get_jobs_handler(update: Update, context: CallbackContext):
     update.message.reply_text(f"Los jobs son: {', '.join(jobs)}\\.")
 
 
-@developer_chat_id_required
+@chat_id_required(allow_admin_run=True, allow_user_run=False)
 def cleanup_jobs_handler(update: Update, context: CallbackContext):
     cleanup_jobs(update, context.job_queue.jobs())
 

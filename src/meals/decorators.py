@@ -14,19 +14,18 @@ def get_handler_name(name):
     return "_".join(parts[: len(parts) - 1])
 
 
-def chat_id_required(read_only=False):
+def chat_id_required(allow_admin_run=False, allow_user_run=True):
     """
-    Marca una función como que requiere chat id. Puede ser CHAT_ID o DEVELOPER_CHAT_ID.
-
-    :param bool read_only: Especifica si el comando se puede correr desde otro chat que no sea el configurado. Deberia ser True si el comando no modifica informacion.
+    Marca una función como que requiere que el chat origen sea CHAT_ID.
+    :param bool allow_admin_run: Especifica si el comando se puede correr desde DEVELOPER_CHAT_ID.
     """
 
     def decorator(fn):
         fnname = get_handler_name(fn.__name__)
 
         def inner(update, context):
-            if update.message.chat.id == settings.CHAT_ID or (
-                read_only and update.message.chat.id == settings.DEVELOPER_CHAT_ID
+            if (allow_user_run and update.message.chat.id == settings.CHAT_ID) or (
+                allow_admin_run and update.message.chat.id == settings.DEVELOPER_CHAT_ID
             ):
                 fn(update, context)
             else:
@@ -40,14 +39,6 @@ def chat_id_required(read_only=False):
         return inner
 
     return decorator
-
-
-def developer_chat_id_required(fn):
-    def inner(update, context):
-        if update.message.chat.id == settings.DEVELOPER_CHAT_ID:
-            fn(update, context)
-
-    return inner
 
 
 def random_run(fn):

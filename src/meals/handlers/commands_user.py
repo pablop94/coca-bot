@@ -49,7 +49,7 @@ def add_meal_handler(update, context):
             )
 
 
-@chat_id_required(read_only=True)
+@chat_id_required(allow_admin_run=True)
 def history_handler(update, context):
     logger.info("Enviando historial de comidas.")
     body, graph = get_history("El historial es:")
@@ -83,7 +83,7 @@ def skip_handler(update, context):
     update.message.reply_text("Perfecto, me salteo una comida\\.")
 
 
-@chat_id_required(read_only=True)
+@chat_id_required(allow_admin_run=True)
 def next_meals_handler(update, context):
     meals = get_next_meals()
 
@@ -105,7 +105,7 @@ def next_meals_handler(update, context):
         update.message.reply_text("No hay próximas comidas\\.")
 
 
-@chat_id_required(read_only=True)
+@chat_id_required(allow_admin_run=True)
 def previous_meals_handler(update, context):
     meals = get_previous_meals(5)
 
